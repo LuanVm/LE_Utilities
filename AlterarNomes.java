@@ -5,20 +5,19 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.awt.event.ComponentAdapter;
-
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
-
 
 public class AlterarNomes {
 
@@ -26,10 +25,10 @@ public class AlterarNomes {
 
     public static void main(String[] args) {
 
-        // tema
+        // Tema
         FlatDarculaLaf.setup();
 
-        // tela de loading
+        // Tela de loading
         JWindow splashScreen = new JWindow();
         splashScreen.getContentPane().add(new JLabel("Carregando...", SwingConstants.CENTER));
         splashScreen.setSize(150, 100);
@@ -51,6 +50,7 @@ public class AlterarNomes {
             Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
             BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 
+
             resizedImage.getGraphics().drawImage(scaledImage,
                     0, 0, null);
             frame.setIconImage(resizedImage);
@@ -59,7 +59,8 @@ public class AlterarNomes {
         }
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(800, 600));
+        frame.setPreferredSize(new Dimension(1280,
+                720));
 
         frame.addComponentListener(new ComponentAdapter() {
             @Override
@@ -69,7 +70,7 @@ public class AlterarNomes {
             }
         });
 
-        frame.pack(); // valida o layout e tamanho da janela
+        frame.pack();
 
         splashScreen.dispose();
         frame.setVisible(true);
@@ -102,15 +103,50 @@ public class AlterarNomes {
         return panel;
     }
 
+    private static JButton criarBotao(String texto) {
+        JButton botao = new JButton(texto) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                if (getModel().isArmed()) {
+                    g.setColor(getBackground().darker());
+                } else {
+                    g.setColor(getBackground());
+                }
+                g.fillRoundRect(0, 0, getSize().width - 1, getSize().height - 1, 4, 4);
+
+                super.paintComponent(g);
+            }
+        };
+
+        botao.setBackground(new Color(0xEB5E28));
+        botao.setForeground(Color.WHITE);
+        botao.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        botao.setFocusPainted(false); // Remove a borda de foco padrão
+        botao.setContentAreaFilled(false); // Remove o preenchimento padrão do botão
+
+        return botao;
+    }
+
+    // Função auxiliar para obter a extensão de um arquivo
+    private static String getFileExtension(String fileName) {
+        int lastIndexOfDot = fileName.lastIndexOf(".");
+        if (lastIndexOfDot > 0) {
+            return fileName.substring(lastIndexOfDot);
+        } else {
+            return ""; // Sem extensão
+        }
+    }
+
     private static void configurarAbaSubstituicaoSimples(JPanel panel) {
         // Painel para os campos de entrada
-        JPanel inputPanel = new JPanel(new GridBagLayout()); // Usa GridBagLayout para um layout mais flexível
+        JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(new TitledBorder("Configurações de Renomeação"));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5); // Espaçamento entre os componentes
-        gbc.fill = GridBagConstraints.HORIZONTAL; // Os componentes preenchem horizontalmente a célula
-        gbc.anchor = GridBagConstraints.WEST; // Alinha os componentes à esquerda
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+
 
         // Pasta
         gbc.gridx = 0;
@@ -119,32 +155,30 @@ public class AlterarNomes {
         inputPanel.add(labelPasta, gbc);
 
         gbc.gridx = 1;
-        gbc.weightx = 1.0; // Permite que o campo de texto se expanda horizontalmente
+        gbc.weightx = 1.0;
         JTextField textPasta = new JTextField(20);
         inputPanel.add(textPasta, gbc);
 
         gbc.gridx = 2;
         gbc.weightx = 0.0; // Impede que o botão se expanda
-        JButton buttonSelecionar = new JButton("Selecionar Pasta"); // Muda o texto do botão
-        buttonSelecionar.setBackground(new Color(0xEB5E28));
-        buttonSelecionar.setForeground(Color.WHITE);
+        JButton buttonSelecionar = criarBotao("Selecionar Pasta"); // Usa o método criarBotao
         inputPanel.add(buttonSelecionar, gbc);
 
         // Nome original
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.weightx = 0.0; // Redefine o peso para o label
+        gbc.weightx = 0.0;
         JLabel labelOriginal = new JLabel("Nome original:");
         inputPanel.add(labelOriginal, gbc);
 
         gbc.gridx = 1;
-        gbc.weightx = 1.0; // Permite que o campo de texto se expanda
+        gbc.weightx = 1.0;
         JTextField textOriginal = new JTextField(20);
         inputPanel.add(textOriginal, gbc);
 
         gbc.gridx = 2;
-        gbc.weightx = 0.0; // Redefine o peso para ocupar apenas uma célula
-        inputPanel.add(new JLabel(""), gbc); // Adiciona um espaço vazio para manter o alinhamento
+        gbc.weightx = 0.0;
+        inputPanel.add(new JLabel(""), gbc);
 
         // Alterar para
         gbc.gridx = 0;
@@ -158,32 +192,16 @@ public class AlterarNomes {
         JTextField textNova = new JTextField(20);
         inputPanel.add(textNova, gbc);
 
+        // Botão Renomear
         gbc.gridx = 2;
+        gbc.gridy = 2;
         gbc.weightx = 0.0;
-        inputPanel.add(new JLabel(""), gbc);
-
-//        Botão Renomear
-//        JButton buttonRenomear = new JButton("Renomear");
-//        buttonRenomear.setBackground(new Color(0xEB5E28));
-//        buttonRenomear.setForeground(Color.WHITE);
-//        buttonRenomear.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Espaçamento interno
-//        buttonRenomear.setPreferredSize(new Dimension(100, 20));
-
-        JButton buttonRenomear = new JButton("Renomear");
-        buttonRenomear.setBackground(new Color(0xEB5E28));
-        buttonRenomear.setForeground(Color.WHITE);
-        inputPanel.add(buttonRenomear, gbc);
-
-        gbc.gridx = 2; // Mesma coluna do botão "Selecionar"
-        gbc.gridy = 2; // Mesma linha do campo de texto "Alterar para"
-        gbc.gridwidth = 1; // O botão ocupa apenas 1 coluna
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.EAST; // Alinha o botão à direita da célula
+        JButton buttonRenomear = criarBotao("Renomear"); // Usa o método criarBotao
         inputPanel.add(buttonRenomear, gbc);
 
         // Adicionar área de visualização de arquivos
         gbc.gridx = 0;
-        gbc.gridy = 3; // Muda para a próxima linha
+        gbc.gridy = 3;
         gbc.gridwidth = 3;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
@@ -204,11 +222,14 @@ public class AlterarNomes {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
 
+
                 fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
 
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
+
 
                     textPasta.setText(selectedFile.getAbsolutePath());
                     atualizarVisualizacaoArquivos(selectedFile);
@@ -248,27 +269,53 @@ public class AlterarNomes {
     }
 
     private static void configurarAbaRenomeacao(JPanel panel) {
-        // Painel para os campos de entrada
-        JPanel inputPanel = new JPanel(new GridLayout(2, 3, 10, 10));
+        // Painel principal da aba, usando BorderLayout para organizar os componentes
+        panel.setLayout(new BorderLayout());
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        // Painel para os campos de entrada, usando GridBagLayout para um layout flexível
+        JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(new TitledBorder("Configurações de Renomeação"));
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+
+
         // Pasta
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         JLabel labelPasta = new JLabel("Pasta:");
-        inputPanel.add(labelPasta);
+        inputPanel.add(labelPasta, gbc);
 
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
         JTextField textPasta = new JTextField(20);
-        inputPanel.add(textPasta);
+        inputPanel.add(textPasta, gbc);
 
-        JButton buttonSelecionar = new JButton("Selecionar");
-        buttonSelecionar.setBackground(new Color(0xEB5E28));
-        buttonSelecionar.setForeground(Color.WHITE);
-        inputPanel.add(buttonSelecionar);
+        gbc.gridx = 2;
+        gbc.weightx = 0.0;
+        JButton buttonSelecionar = criarBotao("Selecionar Pasta"); // Usa o método criarBotao
+        inputPanel.add(buttonSelecionar, gbc);
 
-        // Ordenar seleção e definir intervalo
+        // Novo nome base para os arquivos
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        JLabel labelNovoNome = new JLabel("Novo nome base:");
+        inputPanel.add(labelNovoNome, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridwidth = 2;
+        JTextField textNovoNome = new JTextField(20);
+        inputPanel.add(textNovoNome, gbc);
+
+        // Opções de ordenação e intervalo
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 3; // Ocupa todas as colunas
         JPanel panelOrdenar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-        JCheckBox checkOrdenar = new JCheckBox("Ordenar seleção");
-        panelOrdenar.add(checkOrdenar);
 
         JCheckBox checkDefinirIntervalo = new JCheckBox("Definir intervalo");
         panelOrdenar.add(checkDefinirIntervalo);
@@ -285,10 +332,25 @@ public class AlterarNomes {
         JTextField textIntervaloFinal = new JTextField(5);
         panelOrdenar.add(textIntervaloFinal);
 
-        inputPanel.add(panelOrdenar); // Adiciona o painel de ordenação ao painel de entrada
+        inputPanel.add(panelOrdenar);
 
         // Inicialmente desabilitar intervalo
-        checkDefinirIntervalo.setEnabled(false);
+        labelDefinirIntervalo.setEnabled(false);
+        textIntervaloInicial.setEnabled(false);
+        labelAte.setEnabled(false);
+        textIntervaloFinal.setEnabled(false);
+
+        // Habilitar/desabilitar intervalo com base no checkbox
+        checkDefinirIntervalo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean habilitar = checkDefinirIntervalo.isSelected();
+                labelDefinirIntervalo.setEnabled(habilitar);
+                textIntervaloInicial.setEnabled(habilitar);
+                labelAte.setEnabled(habilitar);
+                textIntervaloFinal.setEnabled(habilitar);
+            }
+        });
 
         // Adicionar DocumentListener para validar inputs
         DocumentListener intervalValidation = new DocumentListener() {
@@ -310,6 +372,8 @@ public class AlterarNomes {
             @Override
             public void removeUpdate(DocumentEvent e) {
                 validate();
+
+
             }
 
             @Override
@@ -319,6 +383,8 @@ public class AlterarNomes {
         };
 
         textIntervaloInicial.getDocument().addDocumentListener(intervalValidation);
+
+
         textIntervaloFinal.getDocument().addDocumentListener(intervalValidation);
 
         // Tabela de arquivos
@@ -328,10 +394,31 @@ public class AlterarNomes {
         JScrollPane scrollPane = new JScrollPane(tabelaArquivos);
         scrollPane.setBorder(new TitledBorder("Arquivos na Pasta"));
 
-        // Adiciona os botões abaixo da tabela
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton buttonRenomear = criarBotao();
-        buttonPanel.add(buttonRenomear);
+        // Adiciona um TableCellListener para detectar o arrastar do mouse
+        TableCellListener tcl = new TableCellListener(tabelaArquivos, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                TableCellListener tcl = (TableCellListener) e.getSource();
+                int row = tcl.getRow();
+                int column = tcl.getColumn();
+
+
+                if (column
+ == 1) { // Apenas na segunda coluna
+                    try {
+                        int valorInicial = Integer.parseInt((String) tcl.getOldValue());
+                        int valorFinal = Integer.parseInt((String) tcl.getNewValue());
+                        int incremento = (valorFinal > valorInicial) ? 1 : -1;
+
+                        for (int i = row + 1; i < modeloTabela.getRowCount(); i++) {
+                            valorInicial += incremento;
+                            modeloTabela.setValueAt(String.valueOf(valorInicial), i, column);
+                        }
+                    } catch (NumberFormatException ex) {
+                        // Ignora se o valor não for um número
+                    }
+                }
+            }
+        });
 
         // Adiciona os painéis à aba
         panel.add(inputPanel, BorderLayout.NORTH);
@@ -343,15 +430,22 @@ public class AlterarNomes {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
+
                 fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
+
                     textPasta.setText(selectedFile.getAbsolutePath());
                     atualizarTabelaArquivos(selectedFile, modeloTabela);
                 }
             }
         });
+
+        // Configurar a segunda coluna da tabela para permitir edição e preenchimento sequencial
+        tabelaArquivos.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(new JTextField()));
+        tabelaArquivos.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Ação do botão Renomear
         buttonRenomear.addActionListener(new ActionListener() {
@@ -367,6 +461,8 @@ public class AlterarNomes {
                     }
 
                     String pasta = textPasta.getText();
+                    String novoNomeBase = textNovoNome.getText();
+
                     File directory = new File(pasta);
                     File[] files = directory.listFiles();
 
@@ -376,16 +472,21 @@ public class AlterarNomes {
                         for (int i = 0; i < files.length && counter <= intervaloFinal; i++) {
                             if (files[i].isFile()) {
                                 String nomeArquivo = files[i].getName();
-                                String novoNome = String.format("%03d_%s", counter++, nomeArquivo);
+
+                                // Ajusta o formato de numeração com base no valor do contador
+                                String formatoNumeracao = (counter < 100) ? "%d_" : "%03d_";
+                                String novoNome = String.format(formatoNumeracao + "%s%s", counter, novoNomeBase, getFileExtension(nomeArquivo));
+                                counter++;
 
                                 File novoArquivo = new File(directory, novoNome);
                                 if (!files[i].renameTo(novoArquivo)) {
                                     JOptionPane.showMessageDialog(panel, "Erro ao renomear: " + nomeArquivo);
+                                } else {
+                                    modeloTabela.setValueAt(novoNome, i, 0);
                                 }
                             }
                         }
                         JOptionPane.showMessageDialog(panel, "Renomeação concluída!");
-                        atualizarTabelaArquivos(directory, modeloTabela);
                     } else {
                         JOptionPane.showMessageDialog(panel, "Pasta não encontrada ou vazia.");
                     }
@@ -410,24 +511,17 @@ public class AlterarNomes {
     }
 
     private static void atualizarTabelaArquivos(File directory, DefaultTableModel modeloTabela) {
-        modeloTabela.setRowCount(0); // Limpar a tabela
+        modeloTabela.setRowCount(0);
 
         File[] files = directory.listFiles();
         if (files != null) {
             Arrays.sort(files, Comparator.comparing(File::getName));
             for (File file : files) {
-                if (file.isFile()) {
+                if
+                (file.isFile()) {
                     modeloTabela.addRow(new Object[]{file.getName(), ""});
                 }
             }
         }
-    }
-
-    private static JButton criarBotao() {
-        JButton botao = new JButton("Renomear");
-        botao.setBackground(new Color(0xEB5E28)); // Cor de fundo
-        botao.setForeground(Color.WHITE); // Cor do texto
-        botao.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Espaçamento interno
-        return botao;
     }
 }
