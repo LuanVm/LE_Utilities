@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<updateDescriptor baseUrl="">
+  <entry targetMediaFileId="28" updatableVersionMin="" updatableVersionMax="" fileName="LEAN_windows-x64_2_0.exe" newVersion="2.0" newMediaFileId="28" fileSize="37335552" md5Sum="7170a38a14e8ed4af8558226f7fdc5e3" sha256Sum="298701eeea69142f42bcea3ee31556c6dd362b03539b8756d930c8eb716679a1" bundledJre="windows-amd64-22.0.2.tar.gz" archive="false" singleBundle="false">
+    <comment language="pt_BR" />
+  </entry>
+</updateDescriptor>
