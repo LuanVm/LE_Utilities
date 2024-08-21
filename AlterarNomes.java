@@ -394,27 +394,51 @@ public class AlterarNomes {
         JScrollPane scrollPane = new JScrollPane(tabelaArquivos);
         scrollPane.setBorder(new TitledBorder("Arquivos na Pasta"));
 
-        // Adiciona um TableCellListener para detectar o arrastar do mouse
-        TableCellListener tcl = new TableCellListener(tabelaArquivos, new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                TableCellListener tcl = (TableCellListener) e.getSource();
-                int row = tcl.getRow();
-                int column = tcl.getColumn();
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton buttonRenomear = criarBotao("Renomear");
+        buttonPanel.add(buttonRenomear);
 
+        // Variáveis para controlar o arrasto do mouse
+        int startRow = -1;
+        int startValue = -1;
 
-                if (column
- == 1) { // Apenas na segunda coluna
+        // MouseListener para detectar o início do arrasto
+        tabelaArquivos.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int row = tabelaArquivos.rowAtPoint(e.getPoint());
+                int column = tabelaArquivos.columnAtPoint(e.getPoint());
+
+                if (column == 1 && SwingUtilities.isLeftMouseButton(e)) { // Segunda coluna e botão esquerdo do mouse
+                    startRow = row;
                     try {
-                        int valorInicial = Integer.parseInt((String) tcl.getOldValue());
-                        int valorFinal = Integer.parseInt((String) tcl.getNewValue());
-                        int incremento = (valorFinal > valorInicial) ? 1 : -1;
-
-                        for (int i = row + 1; i < modeloTabela.getRowCount(); i++) {
-                            valorInicial += incremento;
-                            modeloTabela.setValueAt(String.valueOf(valorInicial), i, column);
-                        }
+                        startValue = Integer.parseInt((String) modeloTabela.getValueAt(row, column));
                     } catch (NumberFormatException ex) {
-                        // Ignora se o valor não for um número
+                        startValue = -1; // Valor inválido, ignora o arrasto
+                    }
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                startRow = -1;
+                startValue = -1;
+            }
+        });
+
+        // MouseMotionListener para detectar o arrasto do mouse
+        tabelaArquivos.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (startRow != -1 && startValue != -1) {
+                    int row = tabelaArquivos.rowAtPoint(e.getPoint());
+                    if (row >= 0 && row < modeloTabela.getRowCount()) {
+                        int incremento = (row > startRow) ? 1 : -1;
+                        int valor = startValue;
+                        for (int i = startRow; i != row + incremento; i += incremento) {
+                            modeloTabela.setValueAt(String.valueOf(valor), i, 1);
+                            valor += incremento;
+                        }
                     }
                 }
             }
