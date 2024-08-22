@@ -1,8 +1,6 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -20,7 +18,7 @@ public class PainelRenomearOrdenar {
     private DefaultTableModel modeloTabela;
 
     public PainelRenomearOrdenar(JTextArea textAreaArquivos) {
-        this.textAreaArquivos = textAreaArquivos;
+        PainelRenomearOrdenar.textAreaArquivos = textAreaArquivos;
     }
 
     public JPanel criarPainel() {
