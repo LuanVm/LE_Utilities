@@ -18,7 +18,6 @@ public class TelaPrincipal {
 
     private static JTextArea textAreaArquivos; // Área de texto compartilhada
     private static JPanel painelConteudo; // Painel para exibir o conteúdo das opções
-    private static JPanel panelOrganizacaoPastas;
 
     public static void main(String[] args) {
 
@@ -121,7 +120,7 @@ public class TelaPrincipal {
         UIManager.put("TabbedPane.selected", new Color(0xEB5E28));
 
         // Cria a aba "Nomenclatura de arquivos"
-        JPanel panelNomenclatura = criarAba("Nomenclatura de arquivos", mainTabbedPane);
+        JPanel panelNomenclatura = criarAba(mainTabbedPane);
         panelNomenclatura.setLayout(new BorderLayout());
 
         // Cria o painel de conteúdo e configura o CardLayout
@@ -138,16 +137,7 @@ public class TelaPrincipal {
         painelConteudo.add(panelRenomearOrdenar, "Renomear e ordenar");
 
         // Cria o JPopupMenu (menu suspenso)
-        JPopupMenu popupMenu = new JPopupMenu();
-
-        // Adiciona as opções ao menu suspenso
-        JMenuItem menuItemSubstituicao = new JMenuItem("Substituição Simples");
-        menuItemSubstituicao.addActionListener(e -> atualizarPainelConteudo("Substituição Simples"));
-        popupMenu.add(menuItemSubstituicao);
-
-        JMenuItem menuItemRenomearOrdenar = new JMenuItem("Renomear e ordenar");
-        menuItemRenomearOrdenar.addActionListener(e -> atualizarPainelConteudo("Renomear e ordenar"));
-        popupMenu.add(menuItemRenomearOrdenar);
+        JPopupMenu popupMenu = getjPopupMenu();
 
 // Adiciona um PopupMenuListener para exibir o popupMenu ao clicar com o botão direito na aba
         mainTabbedPane.addMouseListener(new MouseAdapter() {
@@ -174,7 +164,7 @@ public class TelaPrincipal {
         });
 
         // Cria a aba "Organização de pastas"
-        panelOrganizacaoPastas = new PainelOrganizacaoPastas(textAreaArquivos).criarPainel();
+        JPanel panelOrganizacaoPastas = new PainelOrganizacaoPastas(textAreaArquivos).criarPainel();
         mainTabbedPane.addTab("Organização de pastas", panelOrganizacaoPastas);
 
         // Adiciona o JTabbedPane principal ao frame
@@ -184,6 +174,20 @@ public class TelaPrincipal {
         cardLayout.show(painelConteudo, "Substituição Simples");
 
         frame.pack();
+    }
+
+    private static JPopupMenu getjPopupMenu() {
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        // Adiciona as opções ao menu suspenso
+        JMenuItem menuItemSubstituicao = new JMenuItem("Substituição Simples");
+        menuItemSubstituicao.addActionListener(_ -> atualizarPainelConteudo("Substituição Simples"));
+        popupMenu.add(menuItemSubstituicao);
+
+        JMenuItem menuItemRenomearOrdenar = new JMenuItem("Renomear e ordenar");
+        menuItemRenomearOrdenar.addActionListener(_ -> atualizarPainelConteudo("Renomear e ordenar"));
+        popupMenu.add(menuItemRenomearOrdenar);
+        return popupMenu;
     }
 
     // Metodo para criar botões com o preset de design
@@ -242,11 +246,11 @@ public class TelaPrincipal {
         return botao;
     }
 
-    private static JPanel criarAba(String titulo, JTabbedPane tabbedPane) {
+    private static JPanel criarAba(JTabbedPane tabbedPane) {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        tabbedPane.addTab(titulo, panel);
+        tabbedPane.addTab("Nomenclatura de arquivos", panel);
         return panel;
     }
 

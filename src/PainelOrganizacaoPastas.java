@@ -85,7 +85,7 @@ public class PainelOrganizacaoPastas {
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     textPasta.setText(selectedFile.getAbsolutePath());
-                    atualizarVisualizacaoArquivos(selectedFile); // Atualiza a textAreaArquivos
+                    atualizarVisualizacaoArquivos(selectedFile);
                 }
             }
         });
@@ -164,18 +164,17 @@ public class PainelOrganizacaoPastas {
     private String extrairNomeCliente(String nomeArquivo, List<String> excecoes) {
         String[] partes = nomeArquivo.split("_");
 
+        // Ignora se a primeira parte é uma exceção
         if (excecoes.contains(partes[0])) {
             return "";
         }
 
-        // O nome do cliente será a junção das partes até a penúltima parte do nome
-        // Isso exclui a última parte que geralmente é específica para cada arquivo (por exemplo, "Junho_3022")
-        StringBuilder nomeCliente = new StringBuilder(partes[0]);
-        for (int i = 1; i < partes.length - 2; i++) {
-            nomeCliente.append("_").append(partes[i]);
+        // Nome do cliente é sempre até o segundo "_"
+        if (partes.length >= 2) {
+            return partes[0] + "_" + partes[1];
+        } else {
+            return ""; // Ou você pode decidir o que fazer se não houver "_" suficiente
         }
-
-        return nomeCliente.toString();
     }
 
     // Função auxiliar para mover um arquivo para uma pasta
@@ -193,8 +192,7 @@ public class PainelOrganizacaoPastas {
         File[] files = directory.listFiles();
         textAreaArquivos.setText("");
         if (files != null) {
-            Arrays.sort(files, Comparator.comparing(
-                    File::getName));
+            Arrays.sort(files, Comparator.comparing(File::getName));
             for (File file : files) {
                 if (file.isFile()) {
                     textAreaArquivos.append(file.getName() + "\n");
