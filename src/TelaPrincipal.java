@@ -137,7 +137,16 @@ public class TelaPrincipal {
         painelConteudo.add(panelRenomearOrdenar, "Renomear e ordenar");
 
         // Cria o JPopupMenu (menu suspenso)
-        JPopupMenu popupMenu = getjPopupMenu();
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        // Adiciona as opções ao menu suspenso
+        JMenuItem menuItemSubstituicao = new JMenuItem("Substituição Simples");
+        menuItemSubstituicao.addActionListener(_ -> atualizarPainelConteudo("Substituição Simples"));
+        popupMenu.add(menuItemSubstituicao);
+
+        JMenuItem menuItemRenomearOrdenar = new JMenuItem("Renomear e ordenar");
+        menuItemRenomearOrdenar.addActionListener(_ -> atualizarPainelConteudo("Renomear e ordenar"));
+        popupMenu.add(menuItemRenomearOrdenar);
 
 // Adiciona um PopupMenuListener para exibir o popupMenu ao clicar com o botão direito na aba
         mainTabbedPane.addMouseListener(new MouseAdapter() {
@@ -174,20 +183,6 @@ public class TelaPrincipal {
         cardLayout.show(painelConteudo, "Substituição Simples");
 
         frame.pack();
-    }
-
-    private static JPopupMenu getjPopupMenu() {
-        JPopupMenu popupMenu = new JPopupMenu();
-
-        // Adiciona as opções ao menu suspenso
-        JMenuItem menuItemSubstituicao = new JMenuItem("Substituição Simples");
-        menuItemSubstituicao.addActionListener(_ -> atualizarPainelConteudo("Substituição Simples"));
-        popupMenu.add(menuItemSubstituicao);
-
-        JMenuItem menuItemRenomearOrdenar = new JMenuItem("Renomear e ordenar");
-        menuItemRenomearOrdenar.addActionListener(_ -> atualizarPainelConteudo("Renomear e ordenar"));
-        popupMenu.add(menuItemRenomearOrdenar);
-        return popupMenu;
     }
 
     // Metodo para criar botões com o preset de design
