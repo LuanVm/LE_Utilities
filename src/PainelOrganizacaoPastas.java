@@ -227,7 +227,7 @@ public class PainelOrganizacaoPastas {
                         Map<String, List<File>> preVisualizacao = gerarPreVisualizacao(directory, excecoes);
                         exibirPreVisualizacao(preVisualizacao, textAreaArquivos); // Exibe no painel de arquivos
 
-                        buttonOrganizar.setText("Confirmar Organização");
+                        buttonOrganizar.setText("Confirmar Alt.");
                         buttonReverter.setText("Cancelar");
                         aguardandoConfirmacao = true;
                     }

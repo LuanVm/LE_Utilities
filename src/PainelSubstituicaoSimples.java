@@ -2,8 +2,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -18,11 +16,21 @@ public class PainelSubstituicaoSimples {
     }
 
     public JPanel criarPainel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         // Painel para os campos de entrada
+        JPanel inputPanel = criarPainelInput();
+        JScrollPane scrollPaneArquivos = criarScrollPaneArquivos();
+
+        // Adiciona os painéis à aba
+        panel.add(inputPanel, BorderLayout.NORTH);
+        panel.add(scrollPaneArquivos, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel criarPainelInput() {
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Configurações de Renomeação", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
 
@@ -50,7 +58,7 @@ public class PainelSubstituicaoSimples {
         // Nome original
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.weightx = 0.0;
+        gbc.gridwidth = 1;
         JLabel labelOriginal = new JLabel("Nome original:");
         inputPanel.add(labelOriginal, gbc);
 
@@ -58,11 +66,12 @@ public class PainelSubstituicaoSimples {
         gbc.weightx = 1.0;
         JTextField textOriginal = new JTextField(20);
         inputPanel.add(textOriginal, gbc);
+
         gbc.gridx = 2;
         gbc.weightx = 0.0;
         inputPanel.add(new JLabel(""), gbc);
 
-// Alterar para
+        // Alterar para
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0.0;
@@ -74,7 +83,7 @@ public class PainelSubstituicaoSimples {
         JTextField textNova = new JTextField(20);
         inputPanel.add(textNova, gbc);
 
-// Botão Renomear
+        // Botão Renomear
         gbc.gridx = 2;
         gbc.gridy = 2;
         gbc.weightx = 0.0;
@@ -85,80 +94,73 @@ public class PainelSubstituicaoSimples {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 3;
-        gbc.anchor = GridBagConstraints.WEST; // Alinha à esquerda
+        gbc.anchor = GridBagConstraints.WEST;
         JLabel labelCaseSensitive = new JLabel("Lembrando que a aplicação respeita caracteres em caixa alta.");
-        labelCaseSensitive.setForeground(Color.GRAY); // Cor cinza para destacar menos
+        labelCaseSensitive.setForeground(Color.GRAY);
         inputPanel.add(labelCaseSensitive, gbc);
 
-        // Adicionar área de visualização de arquivos
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 3;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
+        // Ação do botão Selecionar
+        buttonSelecionar.addActionListener(e -> selecionarPasta(textPasta));
 
+        // Ação do botão Renomear
+        buttonRenomear.addActionListener(e -> renomearArquivos(textPasta, textOriginal, textNova, inputPanel));
+
+        return inputPanel;
+    }
+
+    private JScrollPane criarScrollPaneArquivos() {
         textAreaArquivos = new JTextArea(10, 40);
         textAreaArquivos.setEditable(false);
         JScrollPane scrollPaneArquivos = new JScrollPane(textAreaArquivos);
         scrollPaneArquivos.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Arquivos na pasta", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
+        return scrollPaneArquivos;
+    }
 
-        // Define o tamanho preferido para o painel de entrada (aumente a altura conforme necessário)
-        inputPanel.setPreferredSize(new Dimension(400, 300));
+    private void selecionarPasta(JTextField textPasta) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-        // Adiciona os painéis à aba
-        panel.add(inputPanel, BorderLayout.NORTH);
-        panel.add(scrollPaneArquivos, BorderLayout.CENTER);
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            textPasta.setText(selectedFile.getAbsolutePath());
+            atualizarVisualizacaoArquivos(selectedFile);
+        }
+    }
 
-        // Ação do botão Selecionar
-        buttonSelecionar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
+    private void renomearArquivos(JTextField textPasta, JTextField textOriginal, JTextField textNova, JPanel inputPanel) {
+        String pasta = textPasta.getText();
+        String palavraNova = textNova.getText();
+        String palavraAntiga = textOriginal.getText();
 
-                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        File directory = new File(pasta);
+        File[] files = directory.listFiles();
 
-                int returnValue = fileChooser.showOpenDialog(null);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    String nomeArquivo = file.getName();
+                    String novoNome = nomeArquivo.replace(palavraAntiga, palavraNova);
 
-                    textPasta.setText(selectedFile.getAbsolutePath());
-                    atualizarVisualizacaoArquivos(selectedFile);
-                }
-            }
-        });
-
-// Ação do botão Renomear
-        buttonRenomear.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String pasta = textPasta.getText();
-                String palavraNova = textNova.getText();
-                String palavraAntiga = textOriginal.getText();
-
-                File directory = new File(pasta);
-                File[] files = directory.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        if (file.isFile()) {
-                            String nomeArquivo = file.getName();
-                            String novoNome = nomeArquivo.replace(palavraAntiga, palavraNova);
-
-                            File novoArquivo = new File(directory, novoNome);
-                            if (!file.renameTo(novoArquivo)) {
-                                JOptionPane.showMessageDialog(panel, "Erro ao renomear: " + nomeArquivo);
-                            }
-                        }
+                    File novoArquivo = new File(directory, novoNome);
+                    if (!file.renameTo(novoArquivo)) {
+                        exibirMensagemErro(inputPanel, "Erro ao renomear: " + nomeArquivo);
                     }
-                    JOptionPane.showMessageDialog(panel, "Renomeação concluída!");
-                    atualizarVisualizacaoArquivos(directory);
-                } else {
-                    JOptionPane.showMessageDialog(panel, "Pasta não encontrada ou vazia.");
                 }
             }
-        });
+            exibirMensagemSucesso(inputPanel, "Renomeação concluída!");
+            atualizarVisualizacaoArquivos(directory);
+        } else {
+            exibirMensagemErro(inputPanel, "Pasta não encontrada ou vazia.");
+        }
+    }
 
-        return panel;
+    private void exibirMensagemErro(Component parentComponent, String mensagem) {
+        JOptionPane.showMessageDialog(parentComponent, mensagem, "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void exibirMensagemSucesso(Component parentComponent, String mensagem) {
+        JOptionPane.showMessageDialog(parentComponent, mensagem, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void atualizarVisualizacaoArquivos(File directory) {
@@ -173,5 +175,4 @@ public class PainelSubstituicaoSimples {
             }
         }
     }
-
 }

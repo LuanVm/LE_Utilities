@@ -18,14 +18,10 @@ public class PainelRenomearOrdenar {
     private DefaultTableModel modeloTabela;
 
     public static String getFileExtension(String fileName) {
-        if (fileName == null) {
-            return null;
+        if (fileName == null || !fileName.contains(".")) {
+            return "";
         }
-        int lastDotIndex = fileName.lastIndexOf('.');
-        if (lastDotIndex == -1) {
-            return "";  // No extension found
-        }
-        return fileName.substring(lastDotIndex + 1);
+        return fileName.substring(fileName.lastIndexOf('.'));
     }
 
     public PainelRenomearOrdenar(JTextArea textAreaArquivos) {
@@ -33,11 +29,9 @@ public class PainelRenomearOrdenar {
     }
 
     public JPanel criarPainel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Painel para os campos de entrada, usando GridBagLayout para um layout flexível
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Configurações de Renomeação", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
 
@@ -66,7 +60,7 @@ public class PainelRenomearOrdenar {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        JLabel labelNovoNome = new JLabel("Novo nome base:");
+        JLabel labelNovoNome = new JLabel("Alterar para:");
         inputPanel.add(labelNovoNome, gbc);
 
         gbc.gridx = 1;
@@ -167,26 +161,16 @@ public class PainelRenomearOrdenar {
             }
         });
 
-        // Adiciona os painéis à aba
-        panel.add(inputPanel, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-
         // Ação do botão Selecionar
         buttonSelecionar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
-
-
                 fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
 
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-
-
                     textPasta.setText(selectedFile.getAbsolutePath());
                     atualizarTabelaArquivos(selectedFile, modeloTabela);
                     atualizarVisualizacaoArquivos(selectedFile); // Atualiza a textAreaArquivos
@@ -204,6 +188,11 @@ public class PainelRenomearOrdenar {
             public void actionPerformed(ActionEvent e) {
                 String pasta = textPasta.getText();
                 String novoNomeBase = textNovoNome.getText();
+
+                if (pasta.isEmpty() || novoNomeBase.isEmpty()) {
+                    JOptionPane.showMessageDialog(panel, "Por favor, preencha todos os campos.");
+                    return;
+                }
 
                 File directory = new File(pasta);
                 File[] files = directory.listFiles();
@@ -225,62 +214,64 @@ public class PainelRenomearOrdenar {
 
                                 // Ajusta o formato de numeração com base no valor da ordem
                                 String formatoNumeracao = (numeroOrdem < 100) ? "%02d" : "%03d";
-                                String novoNome = String.format("%s%s%s", novoNomeBase, String.format(formatoNumeracao, numeroOrdem), TelaPrincipal.getFileExtension(nomeArquivo));
+                                String novoNome = String.format("%s%s%s", novoNomeBase, String.format(formatoNumeracao, numeroOrdem), getFileExtension(nomeArquivo));
 
                                 File novoArquivo = new File(directory, novoNome);
                                 if (!files[i].renameTo(novoArquivo)) {
                                     JOptionPane.showMessageDialog(panel, "Erro ao renomear: " + nomeArquivo);
                                 } else {
-                                    modeloTabela.setValueAt(novoNome, i, 0);
+                                    modeloTabela.setValueAt(novoNome, i, 0); // Atualiza a tabela com o novo nome
                                 }
+
                             } catch (NumberFormatException ex) {
-                                JOptionPane.showMessageDialog(panel, "Por favor, insira valores numéricos válidos na coluna 'Ordem'.");
+                                JOptionPane.showMessageDialog(panel, "Erro na numeração para o arquivo: " + nomeArquivo);
                                 return;
                             }
                         }
                     }
-                    JOptionPane.showMessageDialog(panel, "Renomeação concluída!");
-                } else {
-                    JOptionPane.showMessageDialog(panel, "Pasta não encontrada ou vazia.");
                 }
+
+                // Atualiza a visualização dos arquivos renomeados na textAreaArquivos
+                atualizarVisualizacaoArquivos(directory);
             }
         });
 
-        // Ação do botão Limpar
+        // Ação do botão Limpar Ordem
         buttonLimpar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 for (int i = 0; i < modeloTabela.getRowCount(); i++) {
-                    modeloTabela.setValueAt("", i, 1); // Limpa a segunda coluna (Ordem)
+                    modeloTabela.setValueAt("", i, 1);
                 }
             }
         });
+
         return panel;
     }
 
-    private static void atualizarVisualizacaoArquivos(File directory) {
+    // Metodo para atualizar a tabela de arquivos
+    private void atualizarTabelaArquivos(File directory, DefaultTableModel modeloTabela) {
+        modeloTabela.setRowCount(0); // Limpa a tabela existente
         File[] files = directory.listFiles();
-        textAreaArquivos.setText("");
         if (files != null) {
             Arrays.sort(files, Comparator.comparing(File::getName));
             for (File file : files) {
                 if (file.isFile()) {
-                    textAreaArquivos.append(file.getName() + "\n");
+                    modeloTabela.addRow(new Object[]{file.getName(), ""});
                 }
             }
         }
     }
 
-    private static void atualizarTabelaArquivos(File directory, DefaultTableModel modeloTabela) {
-        modeloTabela.setRowCount(0);
-
+    // Metodo para atualizar a visualização dos arquivos na textAreaArquivos
+    private void atualizarVisualizacaoArquivos(File directory) {
+        textAreaArquivos.setText(""); // Limpa o conteúdo existente
         File[] files = directory.listFiles();
         if (files != null) {
             Arrays.sort(files, Comparator.comparing(File::getName));
             for (File file : files) {
-                if
-                (file.isFile()) {
-                    modeloTabela.addRow(new Object[]{file.getName(), ""});
+                if (file.isFile()) {
+                    textAreaArquivos.append(file.getName() + "\n");
                 }
             }
         }
