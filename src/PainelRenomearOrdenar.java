@@ -17,6 +17,17 @@ public class PainelRenomearOrdenar {
     private static JTextArea textAreaArquivos;
     private DefaultTableModel modeloTabela;
 
+    public static String getFileExtension(String fileName) {
+        if (fileName == null) {
+            return null;
+        }
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex == -1) {
+            return "";  // No extension found
+        }
+        return fileName.substring(lastDotIndex + 1);
+    }
+
     public PainelRenomearOrdenar(JTextArea textAreaArquivos) {
         PainelRenomearOrdenar.textAreaArquivos = textAreaArquivos;
     }
@@ -28,7 +39,7 @@ public class PainelRenomearOrdenar {
 
         // Painel para os campos de entrada, usando GridBagLayout para um layout flexível
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(new TitledBorder("Configurações de Renomeação"));
+        inputPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Configurações de Renomeação", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -74,7 +85,7 @@ public class PainelRenomearOrdenar {
         modeloTabela = new DefaultTableModel(colunas, 0);
         JTable tabelaArquivos = new JTable(modeloTabela);
         JScrollPane scrollPane = new JScrollPane(tabelaArquivos);
-        scrollPane.setBorder(new TitledBorder("Arquivos na Pasta"));
+        scrollPane.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Arquivos na pasta", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
 
         // Painel para os botões
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

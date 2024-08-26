@@ -24,7 +24,7 @@ public class PainelSubstituicaoSimples {
 
         // Painel para os campos de entrada
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(new TitledBorder("Configurações de Renomeação"));
+        inputPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Configurações de Renomeação", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -81,7 +81,7 @@ public class PainelSubstituicaoSimples {
         JButton buttonRenomear = TelaPrincipal.criarBotao("Renomear");
         inputPanel.add(buttonRenomear, gbc);
 
-// Label com a informação sobre caixa alta
+        // Label com a informação sobre caixa alta
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 3;
@@ -90,7 +90,7 @@ public class PainelSubstituicaoSimples {
         labelCaseSensitive.setForeground(Color.GRAY); // Cor cinza para destacar menos
         inputPanel.add(labelCaseSensitive, gbc);
 
-// Adicionar área de visualização de arquivos
+        // Adicionar área de visualização de arquivos
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 3;
@@ -101,16 +101,16 @@ public class PainelSubstituicaoSimples {
         textAreaArquivos = new JTextArea(10, 40);
         textAreaArquivos.setEditable(false);
         JScrollPane scrollPaneArquivos = new JScrollPane(textAreaArquivos);
-        scrollPaneArquivos.setBorder(new TitledBorder("Arquivos na Pasta"));
+        scrollPaneArquivos.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Arquivos na pasta", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
 
-// Define o tamanho preferido para o painel de entrada (aumente a altura conforme necessário)
+        // Define o tamanho preferido para o painel de entrada (aumente a altura conforme necessário)
         inputPanel.setPreferredSize(new Dimension(400, 300));
 
-// Adiciona os painéis à aba
+        // Adiciona os painéis à aba
         panel.add(inputPanel, BorderLayout.NORTH);
         panel.add(scrollPaneArquivos, BorderLayout.CENTER);
 
-// Ação do botão Selecionar
+        // Ação do botão Selecionar
         buttonSelecionar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Livre_Escolha_Utilities:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Livre_Escolha_Utilities_jar</output-path>
+    <root id="archive" name="Livre_Escolha_Utilities.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="Livre_Escolha_Utilities" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/formdev/flatlaf/3.5.1/flatlaf-3.5.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/flatlaf-3.5.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/flatlaf-intellij-themes-3.5.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/formdev/flatlaf-intellij-themes/3.5.1/flatlaf-intellij-themes-3.5.1.jar" path-in-jar="/" />
+      <element id="dir-copy" path="$PROJECT_DIR$/resources/icons" />
+    </root>
+  </artifact>
+</component>
