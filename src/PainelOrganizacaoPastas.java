@@ -28,6 +28,16 @@ public class PainelOrganizacaoPastas {
 
     private static final Logger LOGGER = Logger.getLogger(PainelOrganizacaoPastas.class.getName());
 
+    private JCheckBox checkBoxCriarSubpastas;
+    private JCheckBox checkBoxJuntarArquivos;
+
+    // Componentes para ambas as opções
+    private JPanel opcoesPanel;
+    private JLabel labelNumSecoes;
+    private JSpinner spinnerNumSecoes;
+    private JLabel infoLabel;
+    private JLabel infoLabel2;
+
     private Map<String, List<File>> gerarPreVisualizacao(File directory, List<String> excecoes) {
         Map<String, List<File>> clienteArquivos = new HashMap<>();
 
@@ -67,14 +77,23 @@ public class PainelOrganizacaoPastas {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Painel para os campos de entrada (GridBagLayout)
-        JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(new TitledBorder("Configurações de Organização"));
-
-        GridBagConstraints gbc = new GridBagConstraints();
+        GridBagConstraints gbc = new GridBagConstraints(); // Mova a declaração para cá
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
+
+        // Opções de organização (painel único)
+        opcoesPanel = new JPanel(new GridBagLayout());
+        opcoesPanel.setBorder(new TitledBorder("Opções de Organização"));
+
+        GridBagConstraints gbcConfig = new GridBagConstraints(); // Mova a declaração para cá
+        gbcConfig.insets = new Insets(5, 5, 5, 5);
+        gbcConfig.fill = GridBagConstraints.HORIZONTAL;
+        gbcConfig.anchor = GridBagConstraints.WEST;
+
+        // Painel para os campos de entrada (GridBagLayout)
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        inputPanel.setBorder(new TitledBorder("Configurações de Organização"));
 
         // Pasta
         gbc.gridx = 0;
@@ -103,19 +122,56 @@ public class PainelOrganizacaoPastas {
         JTextField textExcecoes = new JTextField(20);
         inputPanel.add(textExcecoes, gbc);
 
-        // Opções de configuração
-        JPanel configPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        configPanel.setBorder(new TitledBorder("Opções"));
-        JLabel labelNumSecoes = new JLabel("Número de seções para a organização de pastas:");
-        configPanel.add(labelNumSecoes);
-        JSpinner spinnerNumSecoes = new JSpinner(new SpinnerNumberModel(2, MIN_SECOES_NOME_CLIENTE, MAX_SECOES_NOME_CLIENTE, 1));
-        spinnerNumSecoes.addChangeListener(e -> numSecoesNomeCliente = (int) spinnerNumSecoes.getValue());
-        configPanel.add(spinnerNumSecoes);
+        // Checkboxes (mantém na mesma linha)
+        gbcConfig.gridx = 0;
+        gbcConfig.gridy = 0;
+        gbcConfig.gridwidth = 2; // Ocupam as duas colunas
+        checkBoxCriarSubpastas = new JCheckBox("Criar e organizar em subpastas", true);
+        opcoesPanel.add(checkBoxCriarSubpastas, gbcConfig);
 
+        gbcConfig.gridx = 0;
+        gbcConfig.gridy = 1;
+        checkBoxJuntarArquivos = new JCheckBox("Buscar e juntar arquivos em subpastas");
+        opcoesPanel.add(checkBoxJuntarArquivos, gbcConfig);
+
+        // Componentes para a opção "Criação e organização em Subpastas"
+        gbcConfig.gridx = 0;
+        gbcConfig.gridy = 2;
+        gbcConfig.gridwidth = 2;
+        gbcConfig.weighty = 1.0; // Peso 1 para as demais linhas
+
+        // Painel para agrupar o label e o spinner
+        JPanel numSecoesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        labelNumSecoes = new JLabel("N° de seções para a organização:");
+        numSecoesPanel.add(labelNumSecoes);
+
+        spinnerNumSecoes = new JSpinner(new SpinnerNumberModel(2, MIN_SECOES_NOME_CLIENTE, MAX_SECOES_NOME_CLIENTE, 1));
+        spinnerNumSecoes.addChangeListener(e -> numSecoesNomeCliente = (int) spinnerNumSecoes.getValue());
+        spinnerNumSecoes.setPreferredSize(new Dimension(80, 25));
+        numSecoesPanel.add(spinnerNumSecoes);
+
+        opcoesPanel.add(numSecoesPanel, gbcConfig); // Adiciona o painel ao opcoesPanel
+
+        gbcConfig.gridx = 0;
+        gbcConfig.gridy = 3;
+        gbcConfig.weightx = 1.0; // Ocupa todo o espaço horizontal disponível
+        infoLabel = new JLabel("Cada seção é composta por um \"_\" como delimitador, em 2 seções selecionadas, resultaria em Sicoob_Central.");
+        infoLabel.setForeground(Color.GRAY);
+        opcoesPanel.add(infoLabel, gbcConfig);
+
+        // Novo texto informativo para a opção "Busca e junção de arquivos em subpastas"
+        gbcConfig.gridx = 0;
+        gbcConfig.gridy = 4;
+        infoLabel2 = new JLabel("A busca percorrerá todas as subpastas a partir do diretório selecionado, reunirá todos os arquivos e os moverá para a pasta raiz.");
+        infoLabel2.setForeground(Color.GRAY);
+        opcoesPanel.add(infoLabel2, gbcConfig);
+
+        // Adiciona o painel de opções à aba
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 3;
-        inputPanel.add(configPanel, gbc);
+        gbc.weightx = 1.0;
+        inputPanel.add(opcoesPanel, gbc);
 
         // Botão Organizar
         gbc.gridy = 4;
@@ -176,10 +232,13 @@ public class PainelOrganizacaoPastas {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
+
                 fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
+
                     textPasta.setText(selectedFile.getAbsolutePath());
                     atualizarVisualizacaoArquivos(selectedFile);
                     statusLabel.setText("Pronto para organizar!"); // Limpa o status ao selecionar uma nova pasta
@@ -187,7 +246,7 @@ public class PainelOrganizacaoPastas {
             }
         });
 
-        // Ação do botão Organizar (modificado para usar confirmação no botão)
+        // Ação do botão Organizar (adaptada para as novas funcionalidades)
         buttonOrganizar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -210,7 +269,11 @@ public class PainelOrganizacaoPastas {
                         JProgressBar progressBar = new JProgressBar(0, files.length);
                         progressBar.setStringPainted(true);
 
-                        organizarArquivos(directory, excecoes, progressBar);
+                        if (checkBoxCriarSubpastas.isSelected()) {
+                            organizarArquivos(directory, excecoes, progressBar);
+                        } else if (checkBoxJuntarArquivos.isSelected()) {
+                            juntarArquivosEmSubpastas(directory, progressBar);
+                        }
 
                         // Restaura o estado original dos botões e painéis
                         buttonOrganizar.setText("Organizar");
@@ -238,41 +301,92 @@ public class PainelOrganizacaoPastas {
         });
 
         // Ação do botão Reverter
-        buttonReverter.addActionListener(new ActionListener() {
+        buttonOrganizar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (aguardandoConfirmacao) {
-                    // Cancela a organização pendente
-                    buttonOrganizar.setText("Organizar");
-                    buttonReverter.setText("Reverter");
-                    aguardandoConfirmacao = false;
+                String pasta = textPasta.getText();
+                String excecoesStr = textExcecoes.getText();
+                List<String> excecoes = Arrays.asList(excecoesStr.split(","));
 
-                    // Restaura a visualização original dos arquivos
-                    atualizarVisualizacaoArquivos(directory);
+                directory = new File(pasta);
+                if (directory.exists() && directory.isDirectory()) {
+                    File[] files = directory.listFiles();
 
-                    // Limpa a pré-visualização
-                    textAreaPreVisualizacao.setText("");
+                    // Validação da entrada
+                    if (files == null || files.length == 0) {
+                        statusLabel.setText("A pasta selecionada está vazia.");
+                        return;
+                    }
 
-                    statusLabel.setText("Organização cancelada.");
-                } else {
-                    // Reverte a última organização (lógica existente)
-                    if (directory != null && directory.exists()) {
-                        reverterUltimaOrganizacao(directory);
+                    if (aguardandoConfirmacao) {
+                        // Confirmação recebida, prossegue com a organização
+                        JProgressBar progressBar = new JProgressBar(0, files.length);
+                        progressBar.setStringPainted(true);
 
-                        // Atualiza a visualização de arquivos
+                        if (checkBoxCriarSubpastas.isSelected()) {
+                            organizarArquivos(directory, excecoes, progressBar);
+                        } else if (checkBoxJuntarArquivos.isSelected()) {
+                            juntarArquivosEmSubpastas(directory, progressBar);
+                        }
+
+                        // Restaura o estado original dos botões e painéis
+                        buttonOrganizar.setText("Organizar");
+                        buttonReverter.setText("Reverter");
+                        aguardandoConfirmacao = false;
+
+                        // Atualiza a visualização de arquivos APÓS a organização
                         atualizarVisualizacaoArquivos(directory);
 
                         // Atualiza a mensagem de status
-                        statusLabel.setText("Reversão concluída com sucesso!");
+                        statusLabel.setText("Organização concluída com sucesso!");
 
-                        // Limpa a pré-visualização
-                        textAreaPreVisualizacao.setText("");
-                    } else {
-                        statusLabel.setText("Nenhuma organização realizada para reverter.");
                     }
+
+                    // Primeira vez que o botão é clicado, gera a pré-visualização e pede confirmação
+                    Map<String, List<File>> preVisualizacao = gerarPreVisualizacao(directory, excecoes);
+                    exibirPreVisualizacao(preVisualizacao, textAreaArquivos); // Exibe no painel de arquivos
+
+                    buttonOrganizar.setText("Confirmar Alt.");
+                    buttonReverter.setText("Cancelar");
+                    aguardandoConfirmacao = true;
+
+                } else {
+                    statusLabel.setText("Pasta não encontrada ou inválida.");
                 }
             }
         });
+
+        // Inicialmente, mostra os componentes da opção "Criação e organização em Subpastas"
+        // e esconde os da opção "Busca e junção de arquivos em subpastas"
+        labelNumSecoes.setVisible(true);
+        spinnerNumSecoes.setVisible(true);
+        infoLabel.setVisible(true);
+        infoLabel2.setVisible(false);
+
+        // Adiciona um listener para garantir que apenas uma checkbox seja selecionada por vez
+        // e controlar a visibilidade dos componentes
+        ActionListener checkBoxListener = e -> {
+            JCheckBox source = (JCheckBox) e.getSource();
+            if (source.isSelected()) {
+                if (source == checkBoxCriarSubpastas) {
+                    checkBoxJuntarArquivos.setSelected(false);
+                    labelNumSecoes.setVisible(true);
+                    spinnerNumSecoes.setVisible(true);
+                    infoLabel.setVisible(true);
+                    infoLabel2.setVisible(false);
+                } else {
+                    checkBoxCriarSubpastas.setSelected(false);
+                    labelNumSecoes.setVisible(false);
+                    spinnerNumSecoes.setVisible(false);
+                    infoLabel.setVisible(false);
+                    infoLabel2.setVisible(true); // Agora infoLabel2 está acessível aqui
+                }
+                opcoesPanel.revalidate(); // Atualiza o layout do painel de opções
+                opcoesPanel.repaint();
+            }
+        };
+        checkBoxCriarSubpastas.addActionListener(checkBoxListener);
+        checkBoxJuntarArquivos.addActionListener(checkBoxListener);
 
         return panel;
     }
@@ -324,7 +438,7 @@ public class PainelOrganizacaoPastas {
                 ", Arquivos ignorados: " + arquivosIgnorados);
     }
 
-    // Método para reverter a última organização realizada
+    // Metodo para reverter a última organização realizada
     private void reverterUltimaOrganizacao(File directory) {
         for (Map.Entry<File, File> entry : historicoOrganizacao.entrySet()) {
             File arquivoNovo = entry.getKey();
@@ -367,5 +481,56 @@ public class PainelOrganizacaoPastas {
         }
 
         return nomeClienteBuilder.length() > 0 ? nomeClienteBuilder.substring(0, nomeClienteBuilder.length() - 1) : "";
+    }
+
+    private void juntarArquivosEmSubpastas(File directory, JProgressBar progressBar) {
+        List<File> allFiles = new ArrayList<>();
+        Set<File> directoriesToDelete = new HashSet<>(); // Conjunto para armazenar as subpastas a serem excluídas
+        collectFilesRecursively(directory, allFiles, directoriesToDelete);
+
+        for (File file : allFiles) {
+            try {
+                if (file.isFile()) {
+                    Path source = file.toPath();
+                    Path target = new File(directory, file.getName()).toPath();
+                    Files.move(source, target);
+                    progressBar.setValue(progressBar.getValue() + 1);
+
+                    // Adiciona a pasta pai do arquivo à lista de pastas a serem excluídas
+                    directoriesToDelete.add(file.getParentFile());
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Erro ao mover o arquivo: " + file.getName(), e);
+            }
+        }
+
+        // Exclui as subpastas vazias
+        for (File dir : directoriesToDelete) {
+            try {
+                if (dir.isDirectory() && dir.listFiles().length == 0) {
+                    Files.delete(dir.toPath());
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Erro ao excluir a pasta: " + dir.getAbsolutePath(), e);
+            }
+        }
+
+        atualizarVisualizacaoArquivos(directory);
+        statusLabel.setText("Arquivos juntados na pasta raiz com sucesso!");
+    }
+
+    // Metodo auxiliar para percorrer subpastas recursivamente
+    private void collectFilesRecursively(File dir, List<File> allFiles, Set<File> directoriesToDelete) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    allFiles.add(file);
+                } else if (file.isDirectory()) {
+                    collectFilesRecursively(file, allFiles, directoriesToDelete);
+                    directoriesToDelete.add(file); // Adiciona a subpasta à lista para possível exclusão
+                }
+            }
+        }
     }
 }

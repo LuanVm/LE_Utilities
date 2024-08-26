@@ -162,8 +162,8 @@ public class TelaPrincipal {
             }
         };
 
-        botao.setPreferredSize(new Dimension(120, 28)); // Define o tamanho fixo como 120x28 pixels
-        botao.setForeground(Color.WHITE); // Cor do texto
+        botao.setPreferredSize(new Dimension(120, 28));
+        botao.setForeground(Color.WHITE);
         botao.setBorderPainted(false);
         botao.setFocusPainted(false);
         botao.setContentAreaFilled(false);
