@@ -35,8 +35,8 @@ public class PainelOrganizacaoPastas {
     private JPanel opcoesPanel;
     private JLabel labelNumSecoes;
     private JSpinner spinnerNumSecoes;
-    private JLabel infoLabel;
-    private JLabel infoLabel2;
+    private JLabel infoTextPane;
+    private JLabel infoTextPane2;
 
     private Map<String, List<File>> gerarPreVisualizacao(File directory, List<String> excecoes) {
         Map<String, List<File>> clienteArquivos = new HashMap<>();
@@ -154,17 +154,26 @@ public class PainelOrganizacaoPastas {
 
         gbcConfig.gridx = 0;
         gbcConfig.gridy = 3;
-        gbcConfig.weightx = 1.0; // Ocupa todo o espaço horizontal disponível
-        infoLabel = new JLabel("Cada seção é composta por um \"_\" como delimitador, em 2 seções selecionadas, resultaria em Sicoob_Central.");
-        infoLabel.setForeground(Color.GRAY);
-        opcoesPanel.add(infoLabel, gbcConfig);
+        gbcConfig.weightx = 1.0;
+        JTextPane infoTextPane = new JTextPane();
+        infoTextPane.setEditable(false);
+        infoTextPane.setOpaque(false);
+        infoTextPane.setContentType("text/html");
+        infoTextPane.setText("<html>Cada seção é composta por um \"_\" como delimitador, em 2 seções selecionadas, resultaria na criação de pastas levando como exemplo: <b>Sicoob_Central.</b></html>");
+        infoTextPane.setForeground(Color.GRAY);
+        opcoesPanel.add(infoTextPane, gbcConfig);
 
         // Novo texto informativo para a opção "Busca e junção de arquivos em subpastas"
         gbcConfig.gridx = 0;
-        gbcConfig.gridy = 4;
-        infoLabel2 = new JLabel("A busca percorrerá todas as subpastas a partir do diretório selecionado, reunirá todos os arquivos e os moverá para a pasta raiz.");
-        infoLabel2.setForeground(Color.GRAY);
-        opcoesPanel.add(infoLabel2, gbcConfig);
+        gbcConfig.gridy = 3;
+        gbcConfig.weightx = 1.0;
+        JTextPane infoTextPane2 = new JTextPane();
+        infoTextPane2.setEditable(false);
+        infoTextPane2.setOpaque(false);
+        infoTextPane2.setContentType("text/html");
+        infoTextPane2.setText("<html>A busca percorrerá todas as subpastas a partir do diretório selecionado, reunirá todos os arquivos e os moverá para a pasta raiz. <p><b>Ação de reverter NÃO está habilitada para movimentação de pastas.</b></p></html>");
+        infoTextPane2.setForeground(Color.GRAY);
+        opcoesPanel.add(infoTextPane2, gbcConfig);
 
         // Adiciona o painel de opções à aba
         gbc.gridx = 0;
@@ -300,58 +309,44 @@ public class PainelOrganizacaoPastas {
             }
         });
 
-        // Ação do botão Reverter
-        buttonOrganizar.addActionListener(new ActionListener() {
+        // Ação do botão Reverter (agora adicionado ao botão correto)
+        buttonReverter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String pasta = textPasta.getText();
-                String excecoesStr = textExcecoes.getText();
-                List<String> excecoes = Arrays.asList(excecoesStr.split(","));
+                if (aguardandoConfirmacao) {
+                    // Cancela a organização pendente
+                    buttonOrganizar.setText("Organizar");
+                    buttonReverter.setText("Reverter");
+                    aguardandoConfirmacao = false;
 
-                directory = new File(pasta);
-                if (directory.exists() && directory.isDirectory()) {
-                    File[] files = directory.listFiles();
+                    // Restaura a visualização original dos arquivos
+                    atualizarVisualizacaoArquivos(directory);
 
-                    // Validação da entrada
-                    if (files == null || files.length == 0) {
-                        statusLabel.setText("A pasta selecionada está vazia.");
-                        return;
-                    }
+                    // Limpa a pré-visualização
+                    textAreaPreVisualizacao.setText("");
 
-                    if (aguardandoConfirmacao) {
-                        // Confirmação recebida, prossegue com a organização
-                        JProgressBar progressBar = new JProgressBar(0, files.length);
-                        progressBar.setStringPainted(true);
-
+                    statusLabel.setText("Organização cancelada.");
+                } else {
+                    // Reverte a última organização
+                    if (directory != null && directory.exists()) {
                         if (checkBoxCriarSubpastas.isSelected()) {
-                            organizarArquivos(directory, excecoes, progressBar);
+                            reverterUltimaOrganizacao(directory);
                         } else if (checkBoxJuntarArquivos.isSelected()) {
-                            juntarArquivosEmSubpastas(directory, progressBar);
+                            // Lógica para reverter a junção de arquivos (implementar conforme necessário)
+                            statusLabel.setText("Reversão da junção de arquivos não implementada.");
                         }
 
-                        // Restaura o estado original dos botões e painéis
-                        buttonOrganizar.setText("Organizar");
-                        buttonReverter.setText("Reverter");
-                        aguardandoConfirmacao = false;
-
-                        // Atualiza a visualização de arquivos APÓS a organização
+                        // Atualiza a visualização de arquivos
                         atualizarVisualizacaoArquivos(directory);
 
                         // Atualiza a mensagem de status
-                        statusLabel.setText("Organização concluída com sucesso!");
+                        statusLabel.setText("Reversão concluída com sucesso!");
 
+                        // Limpa a pré-visualização
+                        textAreaPreVisualizacao.setText("");
+                    } else {
+                        statusLabel.setText("Nenhuma organização realizada para reverter.");
                     }
-
-                    // Primeira vez que o botão é clicado, gera a pré-visualização e pede confirmação
-                    Map<String, List<File>> preVisualizacao = gerarPreVisualizacao(directory, excecoes);
-                    exibirPreVisualizacao(preVisualizacao, textAreaArquivos); // Exibe no painel de arquivos
-
-                    buttonOrganizar.setText("Confirmar Alt.");
-                    buttonReverter.setText("Cancelar");
-                    aguardandoConfirmacao = true;
-
-                } else {
-                    statusLabel.setText("Pasta não encontrada ou inválida.");
                 }
             }
         });
@@ -360,8 +355,8 @@ public class PainelOrganizacaoPastas {
         // e esconde os da opção "Busca e junção de arquivos em subpastas"
         labelNumSecoes.setVisible(true);
         spinnerNumSecoes.setVisible(true);
-        infoLabel.setVisible(true);
-        infoLabel2.setVisible(false);
+        infoTextPane.setVisible(true);
+        infoTextPane2.setVisible(false);
 
         // Adiciona um listener para garantir que apenas uma checkbox seja selecionada por vez
         // e controlar a visibilidade dos componentes
@@ -372,14 +367,14 @@ public class PainelOrganizacaoPastas {
                     checkBoxJuntarArquivos.setSelected(false);
                     labelNumSecoes.setVisible(true);
                     spinnerNumSecoes.setVisible(true);
-                    infoLabel.setVisible(true);
-                    infoLabel2.setVisible(false);
+                    infoTextPane.setVisible(true);
+                    infoTextPane2.setVisible(false);
                 } else {
                     checkBoxCriarSubpastas.setSelected(false);
                     labelNumSecoes.setVisible(false);
                     spinnerNumSecoes.setVisible(false);
-                    infoLabel.setVisible(false);
-                    infoLabel2.setVisible(true); // Agora infoLabel2 está acessível aqui
+                    infoTextPane.setVisible(false);
+                    infoTextPane2.setVisible(true); // Agora infoTextPane2 está acessível aqui
                 }
                 opcoesPanel.revalidate(); // Atualiza o layout do painel de opções
                 opcoesPanel.repaint();

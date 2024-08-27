@@ -4,7 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.livreescolha</groupId> <artifactId>utilities</artifactId> 
+    <groupId>com.livreescolha</groupId>
+    <artifactId>utilities</artifactId> 
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -14,16 +15,16 @@
     <dependencies>
         <dependency>
             <groupId>com.formdev</groupId>
-    	    <artifactId>flatlaf</artifactId>
+            <artifactId>flatlaf</artifactId>
             <version>3.5.1</version>
-            <scope>runtime</scope>  
         </dependency>
+
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf-intellij-themes</artifactId>
             <version>3.5.1</version>
-            <scope>runtime</scope>
         </dependency>
+
     </dependencies>
 
 </project>
