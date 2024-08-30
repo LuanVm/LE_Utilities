@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Livre_Escolha_Utilities.iml" filepath="$PROJECT_DIR$/Livre_Escolha_Utilities.iml" />
+      <module fileurl="file://$PROJECT_DIR$/utilities.iml" filepath="$PROJECT_DIR$/utilities.iml" />
     </modules>
   </component>
 </project>

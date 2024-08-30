@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-//Verificar sobre possibilidade de conversor text to excel para a contestação, será no metodo copiar e colar > preenchimento planilha.
 //Verificar sobre possibilidade de alterar o delimitador de seções no código de organização de pastas, para "-" ou Uppercase.
 
 public class TelaPrincipal {
