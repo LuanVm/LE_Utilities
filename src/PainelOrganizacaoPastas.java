@@ -35,8 +35,10 @@ public class PainelOrganizacaoPastas {
     private JPanel opcoesPanel;
     private JLabel labelNumSecoes;
     private JSpinner spinnerNumSecoes;
-    private JLabel infoTextPane;
-    private JLabel infoTextPane2;
+    private JTextPane infoTextPane;
+    private JTextPane infoTextPane2;
+    private JTextPane infoLabel;
+    private JTextPane infoLabel2;
 
     private Map<String, List<File>> gerarPreVisualizacao(File directory, List<String> excecoes) {
         Map<String, List<File>> clienteArquivos = new HashMap<>();
@@ -56,14 +58,14 @@ public class PainelOrganizacaoPastas {
     }
 
     private void exibirPreVisualizacao(Map<String, List<File>> preVisualizacao, JTextArea textArea) {
-        textArea.setText(""); // Clear previous content
+        textArea.setText("");
         for (Map.Entry<String, List<File>> entry : preVisualizacao.entrySet()) {
             String nomePasta = entry.getKey();
             List<File> arquivosNaPasta = entry.getValue();
 
-            textArea.append("[" + nomePasta + "]\n"); // Display the folder name
+            textArea.append("[" + nomePasta + "]\n");
             for (File arquivo : arquivosNaPasta) {
-                textArea.append("  - " + arquivo.getName() + "\n"); // Display the files within the folder
+                textArea.append("  - " + arquivo.getName() + "\n");
             }
         }
     }
@@ -71,13 +73,21 @@ public class PainelOrganizacaoPastas {
     public PainelOrganizacaoPastas(JTextArea textAreaArquivos) {
         this.textAreaArquivos = textAreaArquivos;
         this.statusLabel = new JLabel("Pronto para organizar!");
+        this.infoLabel = new JTextPane();
+        this.infoLabel.setEditable(false);
+        this.infoLabel.setOpaque(false);
+        this.infoLabel.setContentType("text/html");
+        this.infoLabel2 = new JTextPane();
+        this.infoLabel2.setEditable(false);
+        this.infoLabel2.setOpaque(false);
+        this.infoLabel2.setContentType("text/html");
     }
 
     public JPanel criarPainel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        GridBagConstraints gbc = new GridBagConstraints(); // Mova a declaração para cá
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
@@ -86,7 +96,7 @@ public class PainelOrganizacaoPastas {
         opcoesPanel = new JPanel(new GridBagLayout());
         opcoesPanel.setBorder(new TitledBorder("Opções de Organização"));
 
-        GridBagConstraints gbcConfig = new GridBagConstraints(); // Mova a declaração para cá
+        GridBagConstraints gbcConfig = new GridBagConstraints();
         gbcConfig.insets = new Insets(5, 5, 5, 5);
         gbcConfig.fill = GridBagConstraints.HORIZONTAL;
         gbcConfig.anchor = GridBagConstraints.WEST;
@@ -98,17 +108,19 @@ public class PainelOrganizacaoPastas {
         // Pasta
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.weightx = 0.2;
         JLabel labelPasta = new JLabel("Pasta:");
         inputPanel.add(labelPasta, gbc);
 
         gbc.gridx = 1;
-        gbc.weightx = 1.0;
+        gbc.weightx = 0.8;
         JTextField textPasta = new JTextField(20);
         inputPanel.add(textPasta, gbc);
 
         gbc.gridx = 2;
         gbc.weightx = 0.0;
         JButton buttonSelecionar = TelaPrincipal.criarBotao("Selecionar Pasta");
+        buttonSelecionar.setToolTipText("Clique para selecionar a pasta que deseja organizar"); // Adiciona tooltip
         inputPanel.add(buttonSelecionar, gbc);
 
         // Exceções
@@ -116,6 +128,7 @@ public class PainelOrganizacaoPastas {
         gbc.gridy = 1;
         gbc.gridwidth = 3;
         JLabel labelExcecoes = new JLabel("Exceções (separadas por vírgula):");
+        labelExcecoes.setToolTipText("Digite os termos que devem ser ignorados na criação das pastas");
         inputPanel.add(labelExcecoes, gbc);
 
         gbc.gridy = 2;
@@ -138,7 +151,7 @@ public class PainelOrganizacaoPastas {
         gbcConfig.gridx = 0;
         gbcConfig.gridy = 2;
         gbcConfig.gridwidth = 2;
-        gbcConfig.weighty = 1.0; // Peso 1 para as demais linhas
+        gbcConfig.weighty = 1.0;
 
         // Painel para agrupar o label e o spinner
         JPanel numSecoesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -150,12 +163,12 @@ public class PainelOrganizacaoPastas {
         spinnerNumSecoes.setPreferredSize(new Dimension(80, 25));
         numSecoesPanel.add(spinnerNumSecoes);
 
-        opcoesPanel.add(numSecoesPanel, gbcConfig); // Adiciona o painel ao opcoesPanel
+        opcoesPanel.add(numSecoesPanel, gbcConfig);
 
         gbcConfig.gridx = 0;
         gbcConfig.gridy = 3;
         gbcConfig.weightx = 1.0;
-        JTextPane infoTextPane = new JTextPane();
+        infoTextPane = new JTextPane();
         infoTextPane.setEditable(false);
         infoTextPane.setOpaque(false);
         infoTextPane.setContentType("text/html");
@@ -166,8 +179,7 @@ public class PainelOrganizacaoPastas {
         // Novo texto informativo para a opção "Busca e junção de arquivos em subpastas"
         gbcConfig.gridx = 0;
         gbcConfig.gridy = 3;
-        gbcConfig.weightx = 1.0;
-        JTextPane infoTextPane2 = new JTextPane();
+        infoTextPane2 = new JTextPane();
         infoTextPane2.setEditable(false);
         infoTextPane2.setOpaque(false);
         infoTextPane2.setContentType("text/html");
@@ -294,15 +306,17 @@ public class PainelOrganizacaoPastas {
 
                         // Atualiza a mensagem de status
                         statusLabel.setText("Organização concluída com sucesso!");
-                    } else {
-                        // Primeira vez que o botão é clicado, gera a pré-visualização e pede confirmação
-                        Map<String, List<File>> preVisualizacao = gerarPreVisualizacao(directory, excecoes);
-                        exibirPreVisualizacao(preVisualizacao, textAreaArquivos); // Exibe no painel de arquivos
 
-                        buttonOrganizar.setText("Confirmar Alt.");
-                        buttonReverter.setText("Cancelar");
-                        aguardandoConfirmacao = true;
                     }
+
+                    // Primeira vez que o botão é clicado, gera a pré-visualização e pede confirmação
+                    Map<String, List<File>> preVisualizacao = gerarPreVisualizacao(directory, excecoes);
+                    exibirPreVisualizacao(preVisualizacao, textAreaArquivos); // Exibe no painel de arquivos
+
+                    buttonOrganizar.setText("Confirmar Alt.");
+                    buttonReverter.setText("Cancelar");
+                    aguardandoConfirmacao = true;
+
                 } else {
                     statusLabel.setText("Pasta não encontrada ou inválida.");
                 }
@@ -355,8 +369,8 @@ public class PainelOrganizacaoPastas {
         // e esconde os da opção "Busca e junção de arquivos em subpastas"
         labelNumSecoes.setVisible(true);
         spinnerNumSecoes.setVisible(true);
-        infoTextPane.setVisible(true);
-        infoTextPane2.setVisible(false);
+        infoLabel.setVisible(true);
+        infoLabel2.setVisible(false);
 
         // Adiciona um listener para garantir que apenas uma checkbox seja selecionada por vez
         // e controlar a visibilidade dos componentes
@@ -367,14 +381,18 @@ public class PainelOrganizacaoPastas {
                     checkBoxJuntarArquivos.setSelected(false);
                     labelNumSecoes.setVisible(true);
                     spinnerNumSecoes.setVisible(true);
+                    infoLabel.setVisible(true);
+                    infoLabel2.setVisible(false);
                     infoTextPane.setVisible(true);
                     infoTextPane2.setVisible(false);
                 } else {
                     checkBoxCriarSubpastas.setSelected(false);
                     labelNumSecoes.setVisible(false);
                     spinnerNumSecoes.setVisible(false);
+                    infoLabel.setVisible(false);
+                    infoLabel2.setVisible(true);
                     infoTextPane.setVisible(false);
-                    infoTextPane2.setVisible(true); // Agora infoTextPane2 está acessível aqui
+                    infoTextPane2.setVisible(true);
                 }
                 opcoesPanel.revalidate(); // Atualiza o layout do painel de opções
                 opcoesPanel.repaint();
@@ -433,7 +451,7 @@ public class PainelOrganizacaoPastas {
                 ", Arquivos ignorados: " + arquivosIgnorados);
     }
 
-    // Metodo para reverter a última organização realizada
+    // Método para reverter a última organização realizada
     private void reverterUltimaOrganizacao(File directory) {
         for (Map.Entry<File, File> entry : historicoOrganizacao.entrySet()) {
             File arquivoNovo = entry.getKey();
@@ -480,7 +498,7 @@ public class PainelOrganizacaoPastas {
 
     private void juntarArquivosEmSubpastas(File directory, JProgressBar progressBar) {
         List<File> allFiles = new ArrayList<>();
-        Set<File> directoriesToDelete = new HashSet<>(); // Conjunto para armazenar as subpastas a serem excluídas
+        Set<File> directoriesToDelete = new HashSet<>();
         collectFilesRecursively(directory, allFiles, directoriesToDelete);
 
         for (File file : allFiles) {
@@ -491,7 +509,6 @@ public class PainelOrganizacaoPastas {
                     Files.move(source, target);
                     progressBar.setValue(progressBar.getValue() + 1);
 
-                    // Adiciona a pasta pai do arquivo à lista de pastas a serem excluídas
                     directoriesToDelete.add(file.getParentFile());
                 }
             } catch (IOException e) {
@@ -499,7 +516,6 @@ public class PainelOrganizacaoPastas {
             }
         }
 
-        // Exclui as subpastas vazias
         for (File dir : directoriesToDelete) {
             try {
                 if (dir.isDirectory() && dir.listFiles().length == 0) {
@@ -514,7 +530,7 @@ public class PainelOrganizacaoPastas {
         statusLabel.setText("Arquivos juntados na pasta raiz com sucesso!");
     }
 
-    // Metodo auxiliar para percorrer subpastas recursivamente
+    // Método auxiliar para percorrer subpastas recursivamente
     private void collectFilesRecursively(File dir, List<File> allFiles, Set<File> directoriesToDelete) {
         File[] files = dir.listFiles();
         if (files != null) {
@@ -523,7 +539,7 @@ public class PainelOrganizacaoPastas {
                     allFiles.add(file);
                 } else if (file.isDirectory()) {
                     collectFilesRecursively(file, allFiles, directoriesToDelete);
-                    directoriesToDelete.add(file); // Adiciona a subpasta à lista para possível exclusão
+                    directoriesToDelete.add(file);
                 }
             }
         }

@@ -6,30 +6,23 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Properties;
-import java.util.Enumeration;
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConfiguracoesTema {
 
-    private static final String CONFIG_FILE = "config.properties";
+    private static final String CONFIG_FILE = ".my-app-config/config.properties";
+    private static final String DEFAULT_THEME_NAME = "Flat Dark Orange";
+    private static final Logger LOGGER = Logger.getLogger(ConfiguracoesTema.class.getName());
+
     private JPanel panelConfiguracoes;
-    private JRadioButton radioButtonFlatArcDarkOrangeIJTheme;
-    private JRadioButton radioButtonFlatDarkPurpleIJTheme;
-    private JRadioButton radioButtonFlatLafIntelliJ;
-    private JRadioButton radioButtonFlatCarbonIJTheme;
-    private JRadioButton radioButtonFlatMonokaiProIJTheme;
-    private JRadioButton radioButtonFlatGruvboxDarkHardIJTheme;
-    private JRadioButton radioButtonFlatHiDPIDarkIJTheme;
     private ButtonGroup temaButtonGroup;
+    private JTextPane infoLabel;
 
     public ConfiguracoesTema() {
-        panelConfiguracoes = new JPanel();
-        panelConfiguracoes.setLayout(new BorderLayout());
+        panelConfiguracoes = new JPanel(new BorderLayout());
         panelConfiguracoes.setBorder(new EmptyBorder(20, 20, 20, 20));
         configurarPainelConfiguracoes();
     }
@@ -39,42 +32,29 @@ public class ConfiguracoesTema {
     }
 
     private void configurarPainelConfiguracoes() {
-        // Painel para as opções de tema
         JPanel temaPanel = new JPanel(new GridLayout(0, 2, 10, 10));
         temaPanel.setBorder(new TitledBorder("Tema da Interface"));
 
-        // Inicializa o ButtonGroup
         temaButtonGroup = new ButtonGroup();
-
-        // ActionListener para alterar o tema
         ActionListener temaActionListener = e -> {
             JRadioButton source = (JRadioButton) e.getSource();
-            if (source.isSelected()) { // Verifica se o RadioButton está selecionado
+            if (source.isSelected()) {
                 Tema temaSelecionado = Tema.fromName(source.getText());
                 atualizarTema(temaSelecionado.getLookAndFeel());
             }
         };
 
-        // Criação dos RadioButtons utilizando método auxiliar
-        radioButtonFlatArcDarkOrangeIJTheme = createRadioButton("Flat Dark Orange", true, temaButtonGroup, temaPanel, temaActionListener);
-        radioButtonFlatDarkPurpleIJTheme = createRadioButton("Flat Dark Purple", false, temaButtonGroup, temaPanel, temaActionListener);
-        radioButtonFlatLafIntelliJ = createRadioButton("FlatLaf IntelliJ (Light)", false, temaButtonGroup, temaPanel, temaActionListener);
-        radioButtonFlatCarbonIJTheme = createRadioButton("Flat Carbon", false, temaButtonGroup, temaPanel, temaActionListener);
-        radioButtonFlatMonokaiProIJTheme = createRadioButton("Flat Monokai Pro", false, temaButtonGroup, temaPanel, temaActionListener);
-        radioButtonFlatGruvboxDarkHardIJTheme = createRadioButton("Flat Gruvbox Dark Hard", false, temaButtonGroup, temaPanel, temaActionListener);
-        radioButtonFlatHiDPIDarkIJTheme = createRadioButton("Flat HiDPI Dark", false, temaButtonGroup, temaPanel, temaActionListener);
+        for (Tema tema : Tema.values()) {
+            createRadioButton(tema.getName(), tema == Tema.FLAT_DARK_ORANGE, temaButtonGroup, temaPanel, temaActionListener);
+        }
 
-        // Adiciona o painel de tema à aba
-        panelConfiguracoes.add(temaPanel, BorderLayout.NORTH);
-
-        // Botão Salvar
-        JButton buttonSalvar = new JButton("Salvar"); // Criação do botão diretamente
+        JButton buttonSalvar = new JButton("Salvar");
+        buttonSalvar.addActionListener(e -> saveConfig());
         temaPanel.add(buttonSalvar);
 
-        buttonSalvar.addActionListener(e -> saveConfig());
+        panelConfiguracoes.add(temaPanel, BorderLayout.NORTH);
     }
 
-    // Método auxiliar para criar RadioButtons
     private JRadioButton createRadioButton(String text, boolean selected, ButtonGroup group, JPanel panel, ActionListener listener) {
         JRadioButton radioButton = new JRadioButton(text, selected);
         group.add(radioButton);
@@ -83,28 +63,41 @@ public class ConfiguracoesTema {
         return radioButton;
     }
 
-    // Método para atualizar o tema da interface
     private void atualizarTema(LookAndFeel lookAndFeel) {
-        try {
-            UIManager.setLookAndFeel(lookAndFeel);
-            FlatLaf.updateUI();
-        } catch (UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
-        }
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(lookAndFeel);
+                FlatLaf.updateUI();
+                SwingUtilities.updateComponentTreeUI(panelConfiguracoes);
+                for (Window window : Window.getWindows()) {
+                    SwingUtilities.updateComponentTreeUI(window);
+                }
+            } catch (UnsupportedLookAndFeelException e) {
+                LOGGER.log(Level.SEVERE, "Erro ao definir o tema", e);
+            }
+        });
     }
+
 
     private void saveConfig() {
-        try (OutputStream output = new FileOutputStream(CONFIG_FILE)) {
-            Properties prop = new Properties();
-            Tema temaSelecionado = getTemaSelecionado();
-            prop.setProperty("tema", temaSelecionado.getName());
-            prop.store(output, null);
+        File configFile = new File(System.getProperty("user.home"), CONFIG_FILE);
+
+        try {
+            if (!configFile.getParentFile().exists() && !configFile.getParentFile().mkdirs()) {
+                throw new IOException("Erro ao criar o diretório de configuração.");
+            }
+
+            try (OutputStream output = new FileOutputStream(configFile)) {
+                Properties prop = new Properties();
+                Tema temaSelecionado = getTemaSelecionado();
+                prop.setProperty("tema", temaSelecionado.getName());
+                prop.store(output, null);
+            }
         } catch (IOException io) {
-            io.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Erro ao salvar a configuração", io);
         }
     }
 
-    // Método para obter o tema selecionado
     private Tema getTemaSelecionado() {
         for (Enumeration<AbstractButton> buttons = temaButtonGroup.getElements(); buttons.hasMoreElements();) {
             AbstractButton button = buttons.nextElement();
@@ -116,24 +109,43 @@ public class ConfiguracoesTema {
     }
 
     public static void loadConfig() {
-        try (InputStream input = new FileInputStream(CONFIG_FILE)) {
+        File configFile = new File(System.getProperty("user.home"), CONFIG_FILE);
+
+        if (!configFile.exists()) {
+            criarArquivoConfiguracaoPadrao(configFile);
+            return;
+        }
+
+        try (InputStream input = new FileInputStream(configFile)) {
             Properties prop = new Properties();
             prop.load(input);
 
-            String temaName = prop.getProperty("tema", "Flat Dark Orange");
+            String temaName = prop.getProperty("tema", DEFAULT_THEME_NAME);
             Tema tema = Tema.fromName(temaName);
 
             try {
                 UIManager.setLookAndFeel(tema.getLookAndFeel());
             } catch (UnsupportedLookAndFeelException ex) {
-                ex.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Erro ao carregar o tema", ex);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Erro ao carregar o arquivo de configuração", ex);
         }
     }
 
-    // Enum para os temas
+    private static void criarArquivoConfiguracaoPadrao(File configFile) {
+        LOGGER.info("Arquivo de configuração não encontrado: " + configFile.getAbsolutePath());
+        try {
+            if (configFile.getParentFile() != null && configFile.getParentFile().mkdirs()) {
+                try (FileWriter writer = new FileWriter(configFile)) {
+                    writer.write("tema=" + DEFAULT_THEME_NAME);
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Erro ao criar arquivo de configuração padrão", e);
+        }
+    }
+
     enum Tema {
         FLAT_DARK_ORANGE("Flat Dark Orange", new FlatArcDarkOrangeIJTheme()),
         FLAT_DARK_PURPLE("Flat Dark Purple", new FlatDarkPurpleIJTheme()),
@@ -141,7 +153,16 @@ public class ConfiguracoesTema {
         FLAT_CARBON("Flat Carbon", new FlatCarbonIJTheme()),
         FLAT_MONOKAI_PRO("Flat Monokai Pro", new FlatMonokaiProIJTheme()),
         FLAT_GRUVBOX("Flat Gruvbox Dark Hard", new FlatGruvboxDarkHardIJTheme()),
-        FLAT_HIDPI("Flat HiDPI Dark", new FlatHiberbeeDarkIJTheme());
+        FLAT_HIDPI("Flat Hiberbee Dark", new FlatHiberbeeDarkIJTheme());
+
+        private static final Map<String, Tema> NAME_TO_ENUM;
+
+        static {
+            NAME_TO_ENUM = new HashMap<>();
+            for (Tema tema : values()) {
+                NAME_TO_ENUM.put(tema.name, tema);
+            }
+        }
 
         private final String name;
         private final LookAndFeel lookAndFeel;
@@ -160,12 +181,7 @@ public class ConfiguracoesTema {
         }
 
         public static Tema fromName(String name) {
-            for (Tema tema : values()) {
-                if (tema.getName().equals(name)) {
-                    return tema;
-                }
-            }
-            return FLAT_DARK_ORANGE; // Default
+            return NAME_TO_ENUM.getOrDefault(name, FLAT_DARK_ORANGE); // Default
         }
     }
 }
