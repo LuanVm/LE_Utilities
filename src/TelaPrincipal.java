@@ -130,42 +130,10 @@ public class TelaPrincipal {
     }
 
     public static JButton criarBotao(String text) {
-        CustomButton button = new CustomButton(text, BACKGROUND_COLOR, DARKER_BACKGROUND_COLOR, HOVER_COLOR, CLICK_COLOR);
+        JButton button = new JButton(text);
 
         button.setPreferredSize(new Dimension(120, 24));
-        button.setForeground(Color.BLACK);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.setContentAreaFilled(false);
-
-        button.setFont(BUTTON_FONT);
         button.setMargin(new Insets(5, 10, 5, 10));
-
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setMouseOver(true);
-                button.repaint();
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setMouseOver(false);
-                button.repaint();
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                button.setMousePressed(true);
-                button.repaint();
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                button.setMousePressed(false);
-                button.repaint();
-            }
-        });
 
         return button;
     }

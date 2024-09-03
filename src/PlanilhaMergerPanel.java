@@ -1,36 +1,68 @@
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class PlanilhaMergerPanel {
+class PlanilhaMergerPanel {
 
-    private static JTextArea textAreaArquivos;
+    private static final Logger LOGGER = Logger.getLogger(PlanilhaMergerPanel.class.getName());
+
+    private JTextArea textAreaArquivos;
     private DefaultTableModel modeloTabela;
+    private JProgressBar progressBar;
+    private JTextField textPasta;
+    private JTextField textNovoNome;
 
     public PlanilhaMergerPanel(JTextArea textAreaArquivos) {
-        PlanilhaMergerPanel.textAreaArquivos = textAreaArquivos;
+        this.textAreaArquivos = textAreaArquivos;
     }
 
     public JPanel criarPainel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
+        JPanel inputPanel = criarInputPanel();
+        JPanel tabelaPanel = criarTabelaArquivos();
+        JPanel buttonPanel = criarButtonPanel();
+
+        panel.add(inputPanel, BorderLayout.NORTH);
+        panel.add(tabelaPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    private JPanel criarInputPanel() {
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Configurações de Mesclagem", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
+        inputPanel.setBorder(new TitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY),
+                "Configurações de Mesclagem",
+                TitledBorder.LEFT,
+                TitledBorder.DEFAULT_POSITION,
+                new Font("Arial", Font.BOLD, 12)
+        ));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Pasta
+        // Configuração do rótulo e campo de texto para a pasta
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel labelPasta = new JLabel("Pasta:");
@@ -38,52 +70,47 @@ public class PlanilhaMergerPanel {
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
-        final JTextField textPasta = new JTextField(20);
+        textPasta = new JTextField(20);
         inputPanel.add(textPasta, gbc);
 
         gbc.gridx = 2;
         gbc.weightx = 0.0;
-        JButton buttonSelecionar = TelaPrincipal.criarBotao("Selecionar Pasta");
+        JButton buttonSelecionar = new JButton("Selecionar Pasta");
+        buttonSelecionar.setToolTipText("Clique para selecionar a pasta que deseja organizar");
         inputPanel.add(buttonSelecionar, gbc);
 
-        // Novo nome base para os arquivos
+        // Configuração do rótulo e campo de texto para o novo nome do arquivo
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        JLabel labelNovoNome = new JLabel("Novo Nome Base:");
+        JLabel labelNovoNome = new JLabel("Nome do arquivo:");
         inputPanel.add(labelNovoNome, gbc);
 
         gbc.gridx = 1;
         gbc.gridwidth = 2;
-        final JTextField textNovoNome = new JTextField(20);
+        textNovoNome = new JTextField(20);
         inputPanel.add(textNovoNome, gbc);
 
-        // Tabela de arquivos
+        JLabel labelProgresso = new JLabel("Progresso:");
         gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 3;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        String[] colunas = {"Nome do Arquivo", "Ordem"};
-        modeloTabela = new DefaultTableModel(colunas, 0);
-        JTable tabelaArquivos = new JTable(modeloTabela);
-        JScrollPane scrollPane = new JScrollPane(tabelaArquivos);
-        scrollPane.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Arquivos na pasta", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
+        gbc.gridy = 3;
+        inputPanel.add(labelProgresso, gbc);
 
-        // Painel para os botões
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton buttonMesclar = TelaPrincipal.criarBotao("Mesclar");
-        JButton buttonLimpar = TelaPrincipal.criarBotao("Limpar Ordem");
-        buttonPanel.add(buttonMesclar);
-        buttonPanel.add(buttonLimpar);
+        // Configuração da barra de progresso
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1;
+        progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        progressBar.setMaximum(100);
 
-        // Adiciona os painéis à aba
-        panel.add(inputPanel, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
+        JPanel progressPanel = new JPanel(new BorderLayout());
+        progressPanel.add(progressBar, BorderLayout.CENTER);
 
-        // Ação do botão Selecionar
+        inputPanel.add(progressPanel, gbc);
+
+        // Adiciona ação ao botão de seleção de pasta
         buttonSelecionar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -95,16 +122,40 @@ public class PlanilhaMergerPanel {
                     File selectedFile = fileChooser.getSelectedFile();
                     textPasta.setText(selectedFile.getAbsolutePath());
                     atualizarTabelaArquivos(selectedFile, modeloTabela);
-                    atualizarVisualizacaoArquivos(selectedFile); // Atualiza a textAreaArquivos
+                    atualizarVisualizacaoArquivos(selectedFile);
                 }
             }
         });
 
-        // Configurar a segunda coluna da tabela para permitir edição e preenchimento sequencial
-        tabelaArquivos.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(new JTextField()));
-        tabelaArquivos.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        return inputPanel;
+    }
 
-        // Ação do botão Mesclar
+
+    private JPanel criarTabelaArquivos() {
+        String[] colunas = {"Nome do Arquivo", "Status"};
+        modeloTabela = new DefaultTableModel(colunas, 0);
+        JTable tabelaArquivos = new JTable(modeloTabela);
+        JScrollPane scrollPane = new JScrollPane(tabelaArquivos);
+        scrollPane.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Arquivos na pasta", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel criarButtonPanel() {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton buttonMesclar = new JButton("Mesclar");
+        JButton buttonLimpar = new JButton("Limpar Status");
+        buttonPanel.add(buttonMesclar);
+        buttonPanel.add(buttonLimpar);
+
+        adicionarAcaoBotaoMesclar(buttonMesclar);
+        adicionarAcaoBotaoLimpar(buttonLimpar);
+
+        return buttonPanel;
+    }
+
+    private void adicionarAcaoBotaoMesclar(JButton buttonMesclar) {
         buttonMesclar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -112,7 +163,7 @@ public class PlanilhaMergerPanel {
                 String novoNomeBase = textNovoNome.getText();
 
                 if (pasta.isEmpty() || novoNomeBase.isEmpty()) {
-                    JOptionPane.showMessageDialog(panel, "Por favor, preencha todos os campos.");
+                    JOptionPane.showMessageDialog(null, "Por favor, preencha todos os campos.");
                     return;
                 }
 
@@ -120,89 +171,92 @@ public class PlanilhaMergerPanel {
                 File[] files = directory.listFiles();
 
                 if (files != null) {
-                    Arrays.sort(files, Comparator.comparing(File::getName));
-                    for (int i = 0; i < files.length; i++) {
-                        if (files[i].isFile()) {
-                            String nomeArquivo = files[i].getName();
-                            String ordem = (String) modeloTabela.getValueAt(i, 1);
+                    progressBar.setMaximum(files.length);
+                    progressBar.setValue(0);
 
-                            if (ordem.isEmpty()) {
-                                JOptionPane.showMessageDialog(panel, "Por favor, preencha a coluna 'Ordem' para todos os arquivos.");
-                                return;
-                            }
+                    new Thread(() -> {
+                        try (Workbook workbook = new XSSFWorkbook()) {
+                            Sheet sheet = workbook.createSheet("Mesclado");
 
-                            try {
-                                int numeroOrdem = Integer.parseInt(ordem);
+                            int rowIndex = 0;
+                            for (int i = 0; i < files.length; i++) {
+                                if (files[i].isFile() && files[i].getName().endsWith(".xlsx")) {
+                                    try (Workbook inputWorkbook = new XSSFWorkbook(files[i])) {
+                                        Sheet inputSheet = inputWorkbook.getSheetAt(0);
+                                        for (Row row : inputSheet) {
+                                            Row newRow = sheet.createRow(rowIndex++);
+                                            for (int col = 0; col < 28; col++) {
+                                                Cell cell = row.getCell(col);
+                                                if (cell != null) {
+                                                    Cell newCell = newRow.createCell(col, cell.getCellType());
+                                                    newCell.setCellValue(cell.toString());
+                                                }
+                                            }
+                                        }
+                                        modeloTabela.setValueAt("Mesclado", i, 1);
+                                    } catch (IOException | InvalidFormatException ioException) {
+                                        modeloTabela.setValueAt("Erro ao ler arquivo", i, 1);
+                                    }
 
-                                // Ajusta o formato de numeração com base no valor da ordem
-                                String formatoNumeracao = (numeroOrdem < 100) ? "%02d" : "%03d";
-                                String novoNome = String.format("%s%s%s", novoNomeBase, String.format(formatoNumeracao, numeroOrdem), getFileExtension(nomeArquivo));
-
-                                File novoArquivo = new File(directory, novoNome);
-                                if (!files[i].renameTo(novoArquivo)) {
-                                    JOptionPane.showMessageDialog(panel, "Erro ao renomear: " + nomeArquivo);
-                                } else {
-                                    modeloTabela.setValueAt(novoNome, i, 0); // Atualiza a tabela com o novo nome
+                                    int finalI = i;
+                                    SwingUtilities.invokeLater(() -> progressBar.setValue(finalI + 1));
                                 }
-
-                            } catch (NumberFormatException ex) {
-                                JOptionPane.showMessageDialog(panel, "Erro na numeração para o arquivo: " + nomeArquivo);
-                                return;
                             }
-                        }
-                    }
-                }
 
-                // Atualiza a visualização dos arquivos renomeados na textAreaArquivos
-                atualizarVisualizacaoArquivos(directory);
+                            File outputFile = new File(directory, novoNomeBase + ".xlsx");
+                            try (FileOutputStream out = new FileOutputStream(outputFile)) {
+                                workbook.write(out);
+                            }
+
+                            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Mesclagem concluída. Arquivo salvo em: " + outputFile.getAbsolutePath()));
+                        } catch (IOException ioException) {
+                            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Erro ao criar o arquivo mesclado."));
+                        }
+
+                        SwingUtilities.invokeLater(() -> atualizarVisualizacaoArquivos(directory));
+                    }).start();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Pasta não encontrada ou vazia.");
+                }
             }
         });
+    }
 
-        // Ação do botão Limpar Ordem
+    private void adicionarAcaoBotaoLimpar(JButton buttonLimpar) {
         buttonLimpar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                for (int i = 0; i < modeloTabela.getRowCount(); i++) {
+                int rowCount = modeloTabela.getRowCount();
+                for (int i = 0; i < rowCount; i++) {
                     modeloTabela.setValueAt("", i, 1);
                 }
             }
         });
-
-        return panel;
     }
 
-    // Metodo para atualizar a tabela de arquivos
     private void atualizarTabelaArquivos(File directory, DefaultTableModel modeloTabela) {
-        modeloTabela.setRowCount(0); // Limpa a tabela existente
+        modeloTabela.setRowCount(0);
         File[] files = directory.listFiles();
         if (files != null) {
             Arrays.sort(files, Comparator.comparing(File::getName));
             for (File file : files) {
-                if (file.isFile()) {
-                    modeloTabela.addRow(new Object[]{file.getName(), ""});
+                if (file.isFile() && file.getName().endsWith(".xlsx")) {
+                    modeloTabela.addRow(new Object[]{file.getName(), "Não processado"});
                 }
             }
         }
     }
 
-    // Metodo para atualizar a visualização dos arquivos na textAreaArquivos
     private void atualizarVisualizacaoArquivos(File directory) {
-        textAreaArquivos.setText(""); // Limpa o conteúdo existente
+        StringBuilder sb = new StringBuilder();
         File[] files = directory.listFiles();
         if (files != null) {
-            Arrays.sort(files, Comparator.comparing(File::getName));
             for (File file : files) {
-                if (file.isFile()) {
-                    textAreaArquivos.append(file.getName() + "\n");
+                if (file.isFile() && file.getName().endsWith(".xlsx")) {
+                    sb.append(file.getName()).append("\n");
                 }
             }
         }
-    }
-
-    public static String getFileExtension(String fileName) {
-        if (fileName == null || !fileName.contains(".")) {
-            return "";
-        }
-        return fileName.substring(fileName.lastIndexOf('.'));
+        textAreaArquivos.setText(sb.toString());
     }
 }
