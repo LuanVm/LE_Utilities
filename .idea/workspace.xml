@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Merge">
-      <change beforePath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TelaPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TelaPrincipal.java" afterDir="false" />
+    <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, Merge de PlanlhaMerge OK">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PainelOrganizacaoPastas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelOrganizacaoPastas.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +110,8 @@
       <workItem from="1725390905196" duration="293000" />
       <workItem from="1725391418419" duration="291000" />
       <workItem from="1725391864735" duration="102000" />
-      <workItem from="1725393264282" duration="3706000" />
+      <workItem from="1725393264282" duration="3801000" />
+      <workItem from="1725447079142" duration="1547000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -128,7 +129,23 @@
       <option name="project" value="LOCAL" />
       <updated>1725388728640</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Update, Merge de PlanlhaMerge OK">
+      <option name="closed" value="true" />
+      <created>1725397032097</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1725397032097</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Update, Merge de PlanlhaMerge OK">
+      <option name="closed" value="true" />
+      <created>1725397083095</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1725397083095</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -137,7 +154,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Config" />
     <MESSAGE value="Merge" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge" />
+    <MESSAGE value="Update, Merge de PlanlhaMerge OK" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update, Merge de PlanlhaMerge OK" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

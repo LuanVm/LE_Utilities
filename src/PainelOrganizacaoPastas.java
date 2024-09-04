@@ -103,17 +103,23 @@ public class PainelOrganizacaoPastas {
 
         // Painel para os campos de entrada (GridBagLayout)
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(new TitledBorder("Configurações de Organização"));
+        inputPanel.setBorder(new TitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY),
+                "Configurações de Organização",
+                TitledBorder.LEFT,
+                TitledBorder.DEFAULT_POSITION,
+                new Font("Arial", Font.BOLD, 12)
+        ));
 
         // Pasta
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 0.2;
+        gbc.weightx = 0.1;
         JLabel labelPasta = new JLabel("Pasta:");
         inputPanel.add(labelPasta, gbc);
 
         gbc.gridx = 1;
-        gbc.weightx = 0.8;
+        gbc.weightx = 0.9;
         JTextField textPasta = new JTextField(20);
         inputPanel.add(textPasta, gbc);
 
@@ -211,13 +217,20 @@ public class PainelOrganizacaoPastas {
         gbc.weightx = 0.5; // Distribui o espaço horizontalmente
         gbc.weighty = 1.0; // Expande verticalmente para preencher o espaço
         gbc.fill = GridBagConstraints.BOTH;
+
         JPanel painelArquivos = new JPanel(new BorderLayout());
-        painelArquivos.setBorder(new TitledBorder("Arquivos na Pasta"));
+        painelArquivos.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY),
+                "Arquivos na Pasta", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION,
+                new Font("Arial", Font.BOLD, 12)));
+
         textAreaArquivos = new JTextArea(10, 40);
         textAreaArquivos.setEditable(false);
+
         JScrollPane scrollPaneArquivos = new JScrollPane(textAreaArquivos);
         painelArquivos.add(scrollPaneArquivos, BorderLayout.CENTER);
+
         painelInferior.add(painelArquivos, gbc);
+
 
         // Painel para a pré-visualização
         gbc.gridx = 1;
