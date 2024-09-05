@@ -6,7 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, Merge de PlanlhaMerge OK">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PainelOrganizacaoPastas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelOrganizacaoPastas.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +36,7 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/LuanVm/LEAN.git&quot;,
+    &quot;url&quot;: &quot;https://github.com/LuanVm/LE_Utilities.git&quot;,
     &quot;accountId&quot;: &quot;87b06ef6-01d7-42f7-ab25-8486e0b54d29&quot;
   }
 }</component>
@@ -112,6 +117,10 @@
       <workItem from="1725391864735" duration="102000" />
       <workItem from="1725393264282" duration="3801000" />
       <workItem from="1725447079142" duration="1547000" />
+      <workItem from="1725455844297" duration="2822000" />
+      <workItem from="1725466987049" duration="14816000" />
+      <workItem from="1725535484782" duration="8084000" />
+      <workItem from="1725544290783" duration="77000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
