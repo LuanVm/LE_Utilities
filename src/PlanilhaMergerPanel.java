@@ -363,12 +363,16 @@ class PlanilhaMergerPanel {
             XSSFSheet sheet = workbook.getSheetAt(0);
             Row headerRow = sheet.getRow(0);
             if (headerRow != null) {
-                colunasBase.clear();
-                for (Cell cell : headerRow) {
-                    int colIndex = cell.getColumnIndex();
-                    colunasBase.add(colIndex);
+                // Passa o objeto Frame e o arquivo base corretamente para o construtor
+                ColumnSelectDialog columnSelectDialog = new ColumnSelectDialog((Frame) SwingUtilities.getWindowAncestor(textAreaArquivos), arquivoBase);
+                columnSelectDialog.setVisible(true);
+
+                colunasBase = columnSelectDialog.getColunasSelecionadas();
+                if (colunasBase.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Nenhuma coluna selecionada.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Colunas base definidas com sucesso.");
                 }
-                JOptionPane.showMessageDialog(null, "Colunas base definidas com sucesso.");
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro ao ler o arquivo base.", e);
@@ -408,6 +412,92 @@ class PlanilhaMergerPanel {
                     textAreaArquivos.append(arquivo.getName() + "\n");
                 }
             }
+        }
+    }
+
+    // Diálogo para selecionar colunas
+    class ColumnSelectDialog extends JDialog {
+
+        private Set<Integer> colunasSelecionadas = new HashSet<>();
+        private JPanel panelColunas;
+        private File arquivoBase;
+
+        public ColumnSelectDialog(Frame owner, File arquivoBase) {
+            super(owner, "Selecionar Colunas", true);
+            this.arquivoBase = arquivoBase;
+            inicializar();
+        }
+
+        private void inicializar() {
+            setLayout(new BorderLayout(10, 10));
+            setSize(800, 500);
+            setLocationRelativeTo(getOwner());
+
+            panelColunas = new JPanel();
+            panelColunas.setLayout(new BoxLayout(panelColunas, BoxLayout.Y_AXIS)); // Usar BoxLayout para rolagem vertical
+
+            JScrollPane scrollPane = new JScrollPane(panelColunas);
+            add(scrollPane, BorderLayout.CENTER);
+
+            JButton botaoConfirmar = new JButton("Confirmar");
+            JButton botaoCancelar = new JButton("Cancelar");
+
+            JPanel panelBotoes = new JPanel();
+            panelBotoes.add(botaoConfirmar);
+            panelBotoes.add(botaoCancelar);
+            add(panelBotoes, BorderLayout.SOUTH);
+
+            botaoConfirmar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    colunasSelecionadas.clear();
+                    for (Component component : panelColunas.getComponents()) {
+                        JCheckBox checkBox = (JCheckBox) component;
+                        if (checkBox.isSelected()) {
+                            colunasSelecionadas.add((Integer) checkBox.getClientProperty("columnIndex"));
+                        }
+                    }
+                    dispose();
+                }
+            });
+
+            botaoCancelar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    colunasSelecionadas.clear();
+                    dispose();
+                }
+            });
+
+            carregarColunas();
+        }
+
+        private void carregarColunas() {
+            try (FileInputStream fis = new FileInputStream(arquivoBase);
+                 XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
+
+                Sheet sheet = workbook.getSheetAt(0);
+                Row headerRow = sheet.getRow(0);
+
+                if (headerRow != null) {
+                    for (Cell cell : headerRow) {
+                        int colIndex = cell.getColumnIndex();
+                        String colName = cell.getStringCellValue();
+
+                        JCheckBox checkBox = new JCheckBox(colName);
+                        checkBox.setSelected(true); // Marca todas as checkboxes por padrão
+                        checkBox.putClientProperty("columnIndex", colIndex);
+                        panelColunas.add(checkBox);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Erro ao carregar o arquivo base.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        public Set<Integer> getColunasSelecionadas() {
+            return colunasSelecionadas;
         }
     }
 }

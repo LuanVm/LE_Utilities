@@ -6,11 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, Merge de PlanlhaMerge OK">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/desktop.ini" beforeDir="false" afterPath="$PROJECT_DIR$/desktop.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Classes_Funcoes/PainelOrganizacaoPastas.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Classes_Funcoes/PainelRenomearOrdenar.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Classes_Funcoes/PainelSubstituicaoSimples.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Classes_Funcoes/PlanilhaMergerPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$3.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$4.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$5.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -121,6 +126,8 @@
       <workItem from="1725466987049" duration="14816000" />
       <workItem from="1725535484782" duration="8084000" />
       <workItem from="1725544290783" duration="77000" />
+      <workItem from="1725544439685" duration="253000" />
+      <workItem from="1725544760464" duration="4440000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -154,7 +161,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725397083095</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Update, Merge de PlanlhaMerge OK">
+      <option name="closed" value="true" />
+      <created>1725544534983</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1725544534983</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
