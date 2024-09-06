@@ -1,7 +1,6 @@
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.swing.*;
@@ -11,19 +10,16 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class PlanilhaMergerPanel {
+class PainelMesclaPlanilha {
 
-    private static final Logger LOGGER = Logger.getLogger(PlanilhaMergerPanel.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PainelMesclaPlanilha.class.getName());
 
     private JTextArea textAreaArquivos;
     private DefaultTableModel modeloTabela;
@@ -31,11 +27,12 @@ class PlanilhaMergerPanel {
     private JTextField textPasta;
     private JTextField textNovoNome;
     private JTextField textArquivoBase;
-    private JLabel statusColunasLabel; // Adiciona um label para status das colunas
+    private JLabel statusColunasLabel;
     private Set<Integer> colunasBase = new HashSet<>();
     private volatile boolean cancelar = false;
+    private JLabel labelStatusProcessamento;
 
-    public PlanilhaMergerPanel(JTextArea textAreaArquivos) {
+    public PainelMesclaPlanilha(JTextArea textAreaArquivos) {
         this.textAreaArquivos = textAreaArquivos;
     }
 
@@ -63,6 +60,7 @@ class PlanilhaMergerPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
 
+        // Campo Pasta
         gbc.gridx = 0;
         gbc.gridy = 0;
         inputPanel.add(new JLabel("Pasta:"), gbc);
@@ -78,9 +76,9 @@ class PlanilhaMergerPanel {
         buttonSelecionar.setToolTipText("Clique para selecionar a pasta que deseja organizar");
         inputPanel.add(buttonSelecionar, gbc);
 
+        // Campo Nome do Arquivo
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 1;
         inputPanel.add(new JLabel("Nome do arquivo:"), gbc);
 
         gbc.gridx = 1;
@@ -88,6 +86,7 @@ class PlanilhaMergerPanel {
         textNovoNome = new JTextField(20);
         inputPanel.add(textNovoNome, gbc);
 
+        // Campo Arquivo Base
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 1;
@@ -104,12 +103,13 @@ class PlanilhaMergerPanel {
         buttonSelecionarBase.setToolTipText("Clique para selecionar o arquivo base para definir as colunas.");
         inputPanel.add(buttonSelecionarBase, gbc);
 
+        // Barra de Progresso
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         inputPanel.add(new JLabel("Progresso:"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.weightx = 1;
         progressBar = new JProgressBar();
@@ -121,12 +121,18 @@ class PlanilhaMergerPanel {
 
         inputPanel.add(progressPanel, gbc);
 
-        gbc.gridy = 5;
+        // Label de Status de Colunas
+        gbc.gridy = 4;
         gbc.gridx = 0;
         gbc.gridwidth = 3;
         statusColunasLabel = new JLabel("Colunas não selecionadas.");
-        statusColunasLabel.setForeground(Color.RED); // Cor vermelha para indicar erro
+        statusColunasLabel.setForeground(Color.RED);
         inputPanel.add(statusColunasLabel, gbc);
+
+        // Label de Status do Processamento
+        gbc.gridy = 5;
+        labelStatusProcessamento = new JLabel("Pronto para iniciar.");
+        inputPanel.add(labelStatusProcessamento, gbc);
 
         buttonSelecionar.addActionListener(e -> selecionarPasta());
         buttonSelecionarBase.addActionListener(e -> selecionarArquivoBase());
@@ -156,7 +162,9 @@ class PlanilhaMergerPanel {
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             textArquivoBase.setText(selectedFile.getAbsolutePath());
-            lerColunasBase(selectedFile);
+
+            // Ler colunas do arquivo base e abrir o diálogo de seleção
+            SwingUtilities.invokeLater(() -> lerColunasBase(selectedFile));
         }
     }
 
@@ -184,7 +192,11 @@ class PlanilhaMergerPanel {
         return buttonPanel;
     }
 
-    private class MesclarArquivosWorker extends SwingWorker<Void, Void> {
+    private class MesclarArquivosWorker extends SwingWorker<Void, String> {
+
+        private File[] files;
+        private File directory;
+        private String novoNomeBase;
 
         @Override
         protected Void doInBackground() throws Exception {
@@ -192,19 +204,58 @@ class PlanilhaMergerPanel {
             return null;
         }
 
+        private void mesclarArquivos() {
+            String pasta = textPasta.getText();
+            novoNomeBase = textNovoNome.getText();
+
+            if (pasta.isEmpty() || novoNomeBase.isEmpty() || colunasBase.isEmpty()) {
+                publish("Por favor, preencha todos os campos e defina as colunas base.");
+                return;
+            }
+
+            directory = new File(pasta);
+            files = directory.listFiles((dir, name) -> name.endsWith(".xlsx"));
+
+            if (files == null || files.length == 0 || !validarArquivos(files)) {
+                publish("Nenhum arquivo .xlsx válido encontrado na pasta.");
+                return;
+            }
+
+            // Configura a barra de progresso
+            progressBar.setMaximum(files.length);
+            progressBar.setValue(0);
+            cancelar = false;
+
+            try {
+                File outputFile = new File(directory, novoNomeBase + ".xlsx");
+                gerarArquivoXLSX(outputFile, files);
+                publish("Mesclagem concluída.");
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Erro durante a mesclagem.", e);
+                publish("Erro durante a mesclagem: " + e.getMessage());
+            }
+        }
+
+        @Override
+        protected void process(List<String> chunks) {
+            for (String message : chunks) {
+                JOptionPane.showMessageDialog(null, message);
+            }
+        }
+
         @Override
         protected void done() {
             try {
-                get(); // Verifica se houve exceção durante o doInBackground()
-                JOptionPane.showMessageDialog(null, "Mesclagem concluída.");
-                atualizarVisualizacaoArquivos(new File(textPasta.getText()));
+                get();
+                atualizarVisualizacaoArquivos(directory);
+                labelStatusProcessamento.setText("Processo concluído.");
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Erro durante a mesclagem.", e);
                 JOptionPane.showMessageDialog(null, "Erro durante a mesclagem: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                labelStatusProcessamento.setText("Erro durante o processamento.");
             }
         }
     }
-
 
     private void adicionarAcaoBotaoMesclar(JButton buttonMesclar) {
         buttonMesclar.addActionListener(e -> {
@@ -216,66 +267,10 @@ class PlanilhaMergerPanel {
         });
     }
 
-
     private void adicionarAcaoBotaoCancelar(JButton buttonCancelar) {
-        buttonCancelar.addActionListener(e -> cancelar = true);
-    }
-
-    private void mesclarArquivos() {
-        String pasta = textPasta.getText();
-        String novoNomeBase = textNovoNome.getText();
-
-        if (pasta.isEmpty() || novoNomeBase.isEmpty() || colunasBase.isEmpty()) {
-            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Por favor, preencha todos os campos e defina as colunas base."));
-            return;
-        }
-
-        File directory = new File(pasta);
-        File[] files = directory.listFiles((dir, name) -> name.endsWith(".xlsx"));
-
-        if (files != null && files.length > 0 && validarArquivos(files)) {
-            progressBar.setMaximum(files.length);
-            progressBar.setValue(0);
-            cancelar = false;
-
-            ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
-            for (File file : files) {
-                executor.submit(() -> processarArquivo(file, files, directory, novoNomeBase));
-            }
-
-            executor.shutdown();
-            try {
-                executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.log(Level.SEVERE, "Interrupção durante a execução", e);
-            }
-        } else {
-            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Nenhum arquivo .xlsx válido encontrado na pasta."));
-        }
-    }
-
-    private void processarArquivo(File file, File[] files, File directory, String novoNomeBase) {
-        if (cancelar) {
-            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Processo cancelado."));
-            return;
-        }
-
-        int finalProcessedFiles = Arrays.asList(files).indexOf(file);
-        SwingUtilities.invokeLater(() -> modeloTabela.setValueAt("Em Processamento", finalProcessedFiles, 1));
-
-        try {
-            File outputFile = new File(directory, novoNomeBase + ".xlsx");
-            gerarArquivoXLSX(outputFile, files);
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Erro ao processar arquivo: " + file.getName(), ex);
-            SwingUtilities.invokeLater(() -> atualizarVisualizacaoArquivosComErro(directory, file.getName()));
-        }
-
-        SwingUtilities.invokeLater(() -> {
-            progressBar.setValue(progressBar.getValue() + 1);
-            modeloTabela.setValueAt("Concluído", finalProcessedFiles, 1);
+        buttonCancelar.addActionListener(e -> {
+            cancelar = true;
+            labelStatusProcessamento.setText("Cancelamento solicitado...");
         });
     }
 
@@ -289,34 +284,67 @@ class PlanilhaMergerPanel {
     }
 
     private void gerarArquivoXLSX(File outputFile, File[] inputFiles) throws IOException {
-        try (SXSSFWorkbook workbook = new SXSSFWorkbook(); // Use SXSSFWorkbook para streaming de grandes dados
+        // Usando SXSSFWorkbook para melhor desempenho com grandes quantidades de dados
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook(100); // Mantém na memória apenas as últimas 100 linhas
              BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+
+            workbook.setCompressTempFiles(true); // Ativa compressão para arquivos temporários
 
             SXSSFSheet sheet = workbook.createSheet("Dados Mesclados");
 
             int rowCount = 0; // Contador de linhas
 
-            for (File inputFile : inputFiles) {
+            for (int fileIndex = 0; fileIndex < inputFiles.length; fileIndex++) {
+                if (cancelar) {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Processo cancelado."));
+                    return;
+                }
+
+                File inputFile = inputFiles[fileIndex];
+                int finalFileIndex = fileIndex;
+                SwingUtilities.invokeLater(() -> {
+                    modeloTabela.setValueAt("Em Processamento", finalFileIndex, 1);
+                    labelStatusProcessamento.setText("Processando: " + inputFile.getName());
+                });
+
                 try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputFile));
                      XSSFWorkbook inputWorkbook = new XSSFWorkbook(bis)) {
 
-                    XSSFSheet inputSheet = inputWorkbook.getSheetAt(0);
+                    Sheet inputSheet = inputWorkbook.getSheetAt(0);
 
-                    for (Row row : inputSheet) {
-                        if (rowCount >= 100000) { // Exemplo de limite de linhas, ajuste conforme necessário
-                            sheet.flushRows(100); // Flush rows para liberar memória
-                            rowCount = 0;
+                    int lastRowNum = inputSheet.getLastRowNum();
+
+                    for (int rowIndex = 0; rowIndex <= lastRowNum; rowIndex++) {
+                        Row inputRow = inputSheet.getRow(rowIndex);
+                        if (inputRow == null) {
+                            continue;
                         }
 
-                        Row newRow = sheet.createRow(rowCount++);
-                        for (Cell cell : row) {
-                            Cell newCell = newRow.createCell(cell.getColumnIndex(), cell.getCellType());
-                            copiarConteudoCelula(cell, newCell);
+                        Row outputRow = sheet.createRow(rowCount++);
+
+                        for (int colIndex : colunasBase) {
+                            Cell inputCell = inputRow.getCell(colIndex);
+                            Cell outputCell = outputRow.createCell(colIndex);
+
+                            if (inputCell != null) {
+                                copiarConteudoCelula(inputCell, outputCell);
+                            }
+                        }
+
+                        if (rowCount % 100 == 0) {
+                            sheet.flushRows(100); // Libera memória a cada 100 linhas
                         }
                     }
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, "Erro ao processar arquivo: " + inputFile.getName(), e);
+                    int finalFileIndex1 = fileIndex;
+                    SwingUtilities.invokeLater(() -> modeloTabela.setValueAt("Erro", finalFileIndex1, 1));
                 }
+
+                SwingUtilities.invokeLater(() -> {
+                    progressBar.setValue(progressBar.getValue() + 1);
+                    modeloTabela.setValueAt("Concluído", finalFileIndex, 1);
+                });
             }
 
             workbook.write(bos);
@@ -340,26 +368,26 @@ class PlanilhaMergerPanel {
                     outputCell.setCellValue(inputCell.getBooleanCellValue());
                     break;
                 case FORMULA:
-                    switch (inputCell.getCachedFormulaResultType()) {
-                        case STRING:
-                            outputCell.setCellValue(inputCell.getStringCellValue());
-                            break;
-                        case NUMERIC:
-                            if (DateUtil.isCellDateFormatted(inputCell)) {
-                                outputCell.setCellValue(inputCell.getDateCellValue());
-                            } else {
-                                outputCell.setCellValue(inputCell.getNumericCellValue());
-                            }
-                            break;
-                        case BOOLEAN:
-                            outputCell.setCellValue(inputCell.getBooleanCellValue());
-                            break;
-                        case BLANK:
-                            outputCell.setCellValue("");
-                            break;
-                        default:
-                            outputCell.setCellValue("Erro");
-                            break;
+                    FormulaEvaluator evaluator = inputCell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+                    CellValue cellValue = evaluator.evaluate(inputCell);
+                    if (cellValue != null) {
+                        switch (cellValue.getCellType()) {
+                            case STRING:
+                                outputCell.setCellValue(cellValue.getStringValue());
+                                break;
+                            case NUMERIC:
+                                outputCell.setCellValue(cellValue.getNumberValue());
+                                break;
+                            case BOOLEAN:
+                                outputCell.setCellValue(cellValue.getBooleanValue());
+                                break;
+                            case BLANK:
+                                outputCell.setCellValue("");
+                                break;
+                            default:
+                                outputCell.setCellValue("Erro");
+                                break;
+                        }
                     }
                     break;
                 case BLANK:
@@ -380,19 +408,19 @@ class PlanilhaMergerPanel {
         try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(baseFile));
              XSSFWorkbook baseWorkbook = new XSSFWorkbook(bis)) {
 
-            XSSFSheet baseSheet = baseWorkbook.getSheetAt(0);
+            Sheet baseSheet = baseWorkbook.getSheetAt(0);
             Row headerRow = baseSheet.getRow(0);
 
             if (headerRow != null) {
-                for (Cell cell : headerRow) {
-                    colunasBase.add(cell.getColumnIndex());
-                }
+                // Exibir o diálogo para selecionar as colunas
+                mostrarDialogoColunas(baseFile, headerRow);
+            } else {
+                JOptionPane.showMessageDialog(null, "A planilha base não possui cabeçalho.", "Erro", JOptionPane.ERROR_MESSAGE);
             }
-
-            mostrarDialogoColunas(baseFile);
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erro ao ler arquivo base: " + baseFile.getName(), e);
+            JOptionPane.showMessageDialog(null, "Erro ao ler arquivo base: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -417,24 +445,10 @@ class PlanilhaMergerPanel {
         }
     }
 
-    private void atualizarVisualizacaoArquivosComErro(File pasta, String nomeArquivoErro) {
-        File[] arquivos = pasta.listFiles((dir, name) -> name.endsWith(".xlsx"));
-        if (arquivos != null) {
-            textAreaArquivos.setText(""); // Limpa a área de texto
-            for (File arquivo : arquivos) {
-                if (arquivo.getName().equals(nomeArquivoErro)) {
-                    textAreaArquivos.append(arquivo.getName() + " - Erro ao processar\n");
-                } else {
-                    textAreaArquivos.append(arquivo.getName() + "\n");
-                }
-            }
-        }
-    }
-
-    private void mostrarDialogoColunas(File arquivoBase) {
+    private void mostrarDialogoColunas(File arquivoBase, Row headerRow) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(textAreaArquivos);
-            ColumnSelectDialog dialog = new ColumnSelectDialog(frame, arquivoBase);
+            ColumnSelectDialog dialog = new ColumnSelectDialog(frame, arquivoBase, headerRow);
             dialog.setModal(true); // Garante que o diálogo é modal
             dialog.setLocationRelativeTo(frame); // Centraliza o diálogo em relação ao frame
             dialog.setVisible(true);
@@ -459,16 +473,18 @@ class PlanilhaMergerPanel {
         private Set<Integer> colunasSelecionadas = new HashSet<>();
         private JPanel panelColunas;
         private File arquivoBase;
+        private Row headerRow;
 
-        public ColumnSelectDialog(Frame owner, File arquivoBase) {
+        public ColumnSelectDialog(Frame owner, File arquivoBase, Row headerRow) {
             super(owner, "Selecionar Colunas", true);
             this.arquivoBase = arquivoBase;
+            this.headerRow = headerRow;
             inicializar();
         }
 
         private void inicializar() {
             setLayout(new BorderLayout(10, 10));
-            setSize(800, 500);
+            setSize(400, 300);
             setLocationRelativeTo(getOwner());
 
             panelColunas = new JPanel();
@@ -510,26 +526,14 @@ class PlanilhaMergerPanel {
         }
 
         private void carregarColunas() {
-            try (FileInputStream fis = new FileInputStream(arquivoBase);
-                 XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
+            for (Cell cell : headerRow) {
+                int colIndex = cell.getColumnIndex();
+                String colName = cell.getStringCellValue();
 
-                Sheet sheet = workbook.getSheetAt(0);
-                Row headerRow = sheet.getRow(0);
-
-                if (headerRow != null) {
-                    for (Cell cell : headerRow) {
-                        int colIndex = cell.getColumnIndex();
-                        String colName = cell.getStringCellValue();
-
-                        JCheckBox checkBox = new JCheckBox(colName);
-                        checkBox.setSelected(true);
-                        checkBox.putClientProperty("columnIndex", colIndex);
-                        panelColunas.add(checkBox);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Erro ao carregar o arquivo base.", "Erro", JOptionPane.ERROR_MESSAGE);
+                JCheckBox checkBox = new JCheckBox(colName);
+                checkBox.setSelected(true);
+                checkBox.putClientProperty("columnIndex", colIndex);
+                panelColunas.add(checkBox);
             }
         }
 

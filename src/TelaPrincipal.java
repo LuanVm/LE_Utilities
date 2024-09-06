@@ -1,29 +1,13 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 public class TelaPrincipal {
 
     private static JFrame frame;
     private static JTextArea textAreaArquivos;
-
-    private static final Color BACKGROUND_COLOR = new Color(0xFFFBE6);
-    private static final Color DARKER_BACKGROUND_COLOR = BACKGROUND_COLOR.darker();
-    private static final Color HOVER_COLOR = new Color(0xF1D4AF);
-    private static final Color CLICK_COLOR = new Color(0xC5936F);
-    private static final Font BUTTON_FONT = new Font("Segoe UI", Font.PLAIN, 12);
-
-    public static String getFileExtension(String fileName) {
-        int lastIndexOfDot = fileName.lastIndexOf(".");
-        if (lastIndexOfDot > 0 && lastIndexOfDot < fileName.length() - 1) {
-            return fileName.substring(lastIndexOfDot + 1);
-        }
-        return "";
-    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -39,14 +23,9 @@ public class TelaPrincipal {
 
             createAndShowFrame();
 
-            Timer resizeTimer = new Timer(100, e -> {
-                Dimension size = frame.getSize();
-                frame.setSize(size.width + 1, size.height + 1);
-                frame.setSize(size);
-                ((Timer) e.getSource()).stop();
-            });
-            resizeTimer.setRepeats(false);
-            resizeTimer.start();
+            // Redesenha o frame sem usar Timer
+            frame.revalidate();
+            frame.repaint();
 
             splashScreen.dispose();
         });
@@ -57,16 +36,20 @@ public class TelaPrincipal {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                Graphics2D g2 = (Graphics2D) g.create();
+                try {
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                GradientPaint gp = new GradientPaint(0, 0, new Color(0x4CAF50),
-                        0, getHeight(), new Color(0x2E8B57));
-                g2.setPaint(gp);
+                    GradientPaint gp = new GradientPaint(0, 0, new Color(0x4CAF50),
+                            0, getHeight(), new Color(0x2E8B57));
+                    g2.setPaint(gp);
 
-                int[] xPoints = {0, getWidth() / 2, getWidth()};
-                int[] yPoints = {0, getHeight(), 0};
-                g2.fillPolygon(xPoints, yPoints, 3);
+                    int[] xPoints = {0, getWidth() / 2, getWidth()};
+                    int[] yPoints = {0, getHeight(), 0};
+                    g2.fillPolygon(xPoints, yPoints, 3);
+                } finally {
+                    g2.dispose(); // Libera o recurso
+                }
             }
         };
 
@@ -94,11 +77,7 @@ public class TelaPrincipal {
         GerenciadorAbas gerenciadorAbas = new GerenciadorAbas(textAreaArquivos);
 
         ConfiguracoesTema configuracoesTema = new ConfiguracoesTema();
-
-        JDialog dialogConfiguracoes = new JDialog(frame, "Configurações", true);
-        dialogConfiguracoes.setSize(400, 300);
-        dialogConfiguracoes.setLocationRelativeTo(frame);
-        dialogConfiguracoes.getContentPane().add(configuracoesTema.getPainelConfiguracoes());
+        JDialog dialogConfiguracoes = createDialog(frame, "Configurações", configuracoesTema.getPainelConfiguracoes());
 
         JButton botaoTema = criarBotao("Temas");
         botaoTema.addActionListener(e -> dialogConfiguracoes.setVisible(true));
@@ -114,8 +93,8 @@ public class TelaPrincipal {
     }
 
     private static void setFrameIcon() {
-        try {
-            BufferedImage originalImage = ImageIO.read(new File("resources/logo.png"));
+        BufferedImage originalImage = loadImage("/logo.png");
+        if (originalImage != null) {
             int newWidth = 16;
             int newHeight = 16;
             Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
@@ -124,85 +103,30 @@ public class TelaPrincipal {
             g2d.drawImage(scaledImage, 0, 0, null);
             g2d.dispose();
             frame.setIconImage(resizedImage);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+    }
+
+    public static BufferedImage loadImage(String path) {
+        try {
+            return ImageIO.read(TelaPrincipal.class.getResource(path));
+        } catch (IOException e) {
+            System.err.println("Erro ao carregar imagem: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private static JDialog createDialog(JFrame parent, String title, JPanel content) {
+        JDialog dialog = new JDialog(parent, title, true);
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(parent);
+        dialog.getContentPane().add(content);
+        return dialog;
     }
 
     public static JButton criarBotao(String text) {
         JButton button = new JButton(text);
-
         button.setPreferredSize(new Dimension(120, 24));
         button.setMargin(new Insets(5, 10, 5, 10));
-
         return button;
-    }
-
-    static class CustomButton extends JButton {
-        private boolean mouseOver = false;
-        private boolean mousePressed = false;
-        private final Color backgroundColor;
-        private final Color darkerBackgroundColor;
-        private final Color hoverColor;
-        private final Color clickColor;
-
-        public CustomButton(String text, Color backgroundColor, Color darkerBackgroundColor, Color hoverColor, Color clickColor) {
-            super(text);
-            this.backgroundColor = backgroundColor;
-            this.darkerBackgroundColor = darkerBackgroundColor;
-            this.hoverColor = hoverColor;
-            this.clickColor = clickColor;
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            Color startColor = backgroundColor;
-            Color endColor = darkerBackgroundColor;
-
-            if (mousePressed) {
-                startColor = clickColor;
-                endColor = clickColor.darker();
-            } else if (mouseOver) {
-                startColor = hoverColor;
-                endColor = hoverColor.darker();
-            }
-
-            GradientPaint gp = new GradientPaint(0, 0, startColor, 0, getHeight(), endColor);
-            g2.setPaint(gp);
-            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
-
-            g2.setColor(new Color(0, 0, 0, 30));
-            g2.fillRoundRect(2, 2, getWidth() - 4, getHeight() - 4, 15, 15);
-
-            if (mouseOver && !mousePressed) {
-                g2.setColor(new Color(255, 255, 255, 100));
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() / 2, 15, 15);
-            }
-
-            super.paintComponent(g);
-        }
-
-        @Override
-        public void paintBorder(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            if (isFocusOwner()) {
-                g2.setColor(new Color(0, 0, 0, 50));
-                g2.setStroke(new BasicStroke(1));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
-            }
-        }
-
-        public void setMouseOver(boolean mouseOver) {
-            this.mouseOver = mouseOver;
-        }
-
-        public void setMousePressed(boolean mousePressed) {
-            this.mousePressed = mousePressed;
-        }
     }
 }

@@ -7,8 +7,16 @@
     <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, Merge de PlanlhaMerge - JDialog">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GerenciadorAbas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GerenciadorAbas.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TelaPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TelaPrincipal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$ColumnSelectDialog.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$MesclarArquivosWorker.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/TelaPrincipal$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/TelaPrincipal$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/TelaPrincipal$CustomButton.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/TelaPrincipal.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/TelaPrincipal.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,6 +128,8 @@
       <workItem from="1725544290783" duration="77000" />
       <workItem from="1725544439685" duration="253000" />
       <workItem from="1725544760464" duration="12066000" />
+      <workItem from="1725569697789" duration="99000" />
+      <workItem from="1725620423598" duration="19925000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -169,7 +179,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725556154746</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Update, Merge de PlanlhaMerge - JDialog">
+      <option name="closed" value="true" />
+      <created>1725569732159</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1725569732159</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
