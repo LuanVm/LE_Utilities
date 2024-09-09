@@ -10,9 +10,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, Merge de PlanlhaMerge - JDialog">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/GerenciadorAbas.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/GerenciadorAbas.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/ConfiguracoesTema$Tema.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/ConfiguracoesTema.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/GerenciadorAbas.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelOrganizacaoPastas$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelOrganizacaoPastas$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelOrganizacaoPastas$3.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelOrganizacaoPastas.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelRenomearOrdenar$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelRenomearOrdenar$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelRenomearOrdenar$3.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelRenomearOrdenar$4.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelRenomearOrdenar$5.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelRenomearOrdenar.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelSubstituicaoSimples.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/TelaPrincipal$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/TelaPrincipal.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/config.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/logo.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/utilities-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/utilities-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities.iml" beforeDir="false" afterPath="$PROJECT_DIR$/utilities.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,12 +61,12 @@
     &quot;assignee&quot;: &quot;LuanVm&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/LuanVm/LE_Utilities.git&quot;,
-    &quot;accountId&quot;: &quot;87b06ef6-01d7-42f7-ab25-8486e0b54d29&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/LuanVm/LE_Utilities.git",
+    "accountId": "c09c74dc-1ce4-4348-ab5a-2e17ef56231a"
   }
-}</component>
+}]]></component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -49,6 +75,7 @@
 }</component>
   <component name="ProjectId" id="2lNT9Cji86quML5iWAuK6wbRuw3" />
   <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
@@ -72,7 +99,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.5&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.qodana&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -88,8 +115,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.21829.142" />
-        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-IU-242.21829.142" />
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.20224.419" />
+        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-IU-242.20224.419" />
       </set>
     </attachedChunks>
   </component>
@@ -125,6 +152,7 @@
       <workItem from="1725569697789" duration="99000" />
       <workItem from="1725620423598" duration="21458000" />
       <workItem from="1725878729728" duration="822000" />
+      <workItem from="1725883119128" duration="367000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -201,7 +229,7 @@
     <MESSAGE value="Merge" />
     <MESSAGE value="Update, Merge de PlanlhaMerge OK" />
     <MESSAGE value="Update, Merge de PlanlhaMerge - JDialog" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update, Merge de PlanlhaMerge - JDialog" />
+    <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
