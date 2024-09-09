@@ -22,8 +22,9 @@ public class PainelProcessamentoAgitel {
     private JFileChooser fileChooser;
     private JProgressBar progressBar;
     private SwingWorker<Void, String> worker;
-    private int totalSheets;
-    private int totalLinhas;
+    private int totalSheets;  // Total de abas
+    private int totalLinhas;  // Total de linhas
+    private JCheckBox checkBoxTratamentoTipoChamada; // Checkbox para tratamento tipo chamada
 
     // Cache de estilos
     private CellStyle generalStyle;
@@ -80,6 +81,13 @@ public class PainelProcessamentoAgitel {
         JButton buttonProcessar = TelaPrincipal.criarBotao("Processar");
         inputPanel.add(buttonProcessar, gbc);
 
+        // Adiciona a checkbox para tratamento de tipo chamada
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 3;
+        checkBoxTratamentoTipoChamada = new JCheckBox("Tratamento para Tipo Chamada");
+        inputPanel.add(checkBoxTratamentoTipoChamada, gbc);
+
         buttonSelecionar.addActionListener(e -> selecionarArquivo(textArquivo));
         buttonProcessar.addActionListener(e -> processarArquivo(textArquivo.getText()));
 
@@ -110,6 +118,7 @@ public class PainelProcessamentoAgitel {
             return;
         }
 
+        // Atualizar a barra de progresso para o estado indeterminado enquanto processa
         progressBar.setIndeterminate(true);
         progressBar.setString("Processando...");
         progressBar.setStringPainted(true);
@@ -125,20 +134,23 @@ public class PainelProcessamentoAgitel {
                     totalLinhas = calcularTotalLinhas(workbook); // Calcula o total de linhas
                     File outputFile = new File(file.getParent(), "leitura_agitel.xlsx");
 
+                    // Mantém um cache de 50 linhas na memória
                     try (SXSSFWorkbook outputWorkbook = new SXSSFWorkbook(50)) {
-                        int abaIndex = 1;
+                        int abaIndex = 1; // Controla o número da aba
                         SXSSFSheet outputSheet = outputWorkbook.createSheet("Dados Copiados " + abaIndex);
 
+                        // Adiciona cabeçalhos na primeira linha
                         Row headerRow = outputSheet.createRow(0);
                         String[] headers = {"Data", "Origem", "Servico", "Regiao", "Destino", "Duracao", "Preco"};
                         for (int i = 0; i < headers.length; i++) {
                             headerRow.createCell(i).setCellValue(headers[i]);
                         }
 
-                        int rowIndex = 1;
+                        int rowIndex = 1; // Movido para fora do loop de abas para evitar espaçamento
 
                         int linhasProcessadas = 0;
 
+                        // Inicialize os estilos apenas uma vez
                         if (generalStyle == null) {
                             generalStyle = outputWorkbook.createCellStyle();
                             generalStyle.setDataFormat(outputWorkbook.getCreationHelper().createDataFormat().getFormat("General"));
@@ -149,6 +161,7 @@ public class PainelProcessamentoAgitel {
                             dateStyle.setDataFormat(outputWorkbook.getCreationHelper().createDataFormat().getFormat("hh:mm:ss"));
                         }
 
+                        // Alteração para evitar lacunas entre as abas
                         for (int i = 1; i < workbook.getNumberOfSheets(); i++) { // Ignora a primeira aba (i = 1)
                             Sheet sheet = workbook.getSheetAt(i);
                             publish("Processando aba: " + sheet.getSheetName() + " (" + sheet.getLastRowNum() + " linhas)");
@@ -159,19 +172,36 @@ public class PainelProcessamentoAgitel {
 
                                 for (int rowIndexInSheet = startRowIndex; rowIndexInSheet <= sheet.getLastRowNum(); rowIndexInSheet++) {
                                     Row row = sheet.getRow(rowIndexInSheet);
-                                    if (row != null && !isRowEmpty(row)) {
-                                        // Encontra a próxima linha vazia na aba de saída
-                                        int nextAvailableRowIndex = findNextAvailableRow(outputSheet);
+                                    if (row != null) {
+                                        // Verifica se o limite de linhas foi atingido
+                                        if (rowIndex >= 1048576) {
+                                            // Cria uma nova aba e reinicia o índice de linha
+                                            abaIndex++;
+                                            outputSheet = outputWorkbook.createSheet("Dados Copiados " + abaIndex);
+                                            rowIndex = 1; // Reinicia o índice de linha para a nova aba
 
-                                        // Cria uma nova linha na aba de saída na próxima linha disponível
-                                        Row outputRow = outputSheet.createRow(nextAvailableRowIndex);
+                                            // Adiciona os cabeçalhos na nova aba
+                                            Row newHeaderRow = outputSheet.createRow(0); // Renomeia para newHeaderRow
+                                            for (int j = 0; j < headers.length; j++) {
+                                                newHeaderRow.createCell(j).setCellValue(headers[j]);
+                                            }
+                                        }
+
+                                        // Cria uma nova linha na aba atual
+                                        Row outputRow = outputSheet.createRow(rowIndex++);
 
                                         // Copia os dados da linha atual
                                         copyRow(row, outputRow, outputWorkbook);
+
+                                        // Aplica o tratamento para tipo chamada se a checkbox estiver selecionada
+                                        if (checkBoxTratamentoTipoChamada.isSelected()) {
+                                            aplicarTratamentoTipoChamada(outputRow);
+                                        }
                                     }
 
                                     linhasProcessadas++;
 
+                                    // Atualiza a barra de progresso a cada 100 linhas processadas
                                     if (linhasProcessadas % 100 == 0) {
                                         int progress = (int) (((double) linhasProcessadas / totalLinhas) * 100);
                                         setProgress(progress);
@@ -179,9 +209,11 @@ public class PainelProcessamentoAgitel {
                                 }
                             }
 
+                            // Libera as linhas processadas da memória
                             ((SXSSFSheet) outputSheet).flushRows(50);
                         }
 
+                        // Salva o arquivo final após o processamento de todas as abas
                         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
                             outputWorkbook.write(fos);
                         }
@@ -254,7 +286,7 @@ public class PainelProcessamentoAgitel {
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(sourceCell)) {
                     targetCell.setCellValue(sourceCell.getNumericCellValue());
-                    targetCell.setCellStyle(dateStyle);
+                    targetCell.setCellStyle(dateStyle); // Aplicar estilo de data/hora
                 } else {
                     targetCell.setCellValue(sourceCell.getNumericCellValue());
                     targetCell.setCellStyle(generalStyle);
@@ -274,47 +306,41 @@ public class PainelProcessamentoAgitel {
         }
     }
 
-    private int findNextAvailableRow(Sheet sheet) {
-        int rowIndex = sheet.getLastRowNum() + 1;
-        while (sheet.getRow(rowIndex) != null && !isRowEmpty(sheet.getRow(rowIndex))) {
-            rowIndex++;
-        }
-        return rowIndex;
-    }
-
-    private boolean isRowEmpty(Row row) {
-        for (int i = 0; i < 7; i++) { // Verifica até a coluna G
-            Cell cell = row.getCell(i);
-            if (cell != null && cell.getCellType() != CellType.BLANK) {
-                return false;
+    private void aplicarTratamentoTipoChamada(Row row) {
+        Cell regiaoCell = row.getCell(3); // Coluna D (índice 3)
+        if (regiaoCell != null && regiaoCell.getCellType() == CellType.STRING) {
+            String regiaoValue = regiaoCell.getStringCellValue();
+            if (regiaoValue.startsWith("Fixo")) {
+                regiaoCell.setCellValue("Fixo");
+            } else if (regiaoValue.startsWith("Movel")) {
+                regiaoCell.setCellValue("Movel");
             }
         }
-        return true;
     }
 
-    private int calcularTotalLinhas(XSSFWorkbook workbook) {
-        int totalLinhas = 0;
-        for (int i = 1; i < workbook.getNumberOfSheets(); i++) {
-            Sheet sheet = workbook.getSheetAt(i);
-            totalLinhas += sheet.getLastRowNum();
-        }
-        return totalLinhas;
-    }
-
-    private String getCellValue(Cell cell) {
+    private Object getCellValue(Cell cell) {
         switch (cell.getCellType()) {
             case STRING:
                 return cell.getStringCellValue();
             case NUMERIC:
-                return String.valueOf(cell.getNumericCellValue());
+                return cell.getNumericCellValue();
             case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
+                return cell.getBooleanCellValue();
             default:
-                return "";
+                return null;
         }
     }
 
     private void exibirMensagemErro(String mensagem) {
         JOptionPane.showMessageDialog(null, mensagem, "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private int calcularTotalLinhas(XSSFWorkbook workbook) {
+        int totalLinhas = 0;
+        for (int i = 1; i < workbook.getNumberOfSheets(); i++) { // Ignora a primeira aba (i = 1)
+            Sheet sheet = workbook.getSheetAt(i);
+            totalLinhas += sheet.getLastRowNum() - 8; // Considera linhas após os cabeçalhos (linha 9)
+        }
+        return totalLinhas;
     }
 }
