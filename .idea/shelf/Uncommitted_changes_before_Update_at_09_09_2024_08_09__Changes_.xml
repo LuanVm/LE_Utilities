@@ -1,0 +1,72 @@
+<changelist name="Uncommitted_changes_before_Update_at_09_09_2024_08_09_[Changes]" date="1725880191735" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_09_2024_08_09_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 09/09/2024 08:09 [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelSubstituicaoSimples.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/utilities-1.0-SNAPSHOT.jar" />
+    <option name="AFTER_PATH" value="target/utilities-1.0-SNAPSHOT.jar" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_09_2024_08_09_[Changes]/utilities-1.0-SNAPSHOT.jar" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelRenomearOrdenar$2.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelOrganizacaoPastas.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelRenomearOrdenar$3.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelRenomearOrdenar.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/GerenciadorAbas.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelOrganizacaoPastas$3.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelRenomearOrdenar$4.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelOrganizacaoPastas$2.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelOrganizacaoPastas$1.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/TelaPrincipal.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/logo.png" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/logo.ico" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/TelaPrincipal$CustomButton.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelRenomearOrdenar$1.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/TelaPrincipal$1.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/TelaPrincipal$2.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/PainelRenomearOrdenar$5.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/config.png" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/ConfiguracoesTema.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/ConfiguracoesTema$Tema.class" />
+  </binary>
+</changelist>

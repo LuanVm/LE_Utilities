@@ -1,0 +1,127 @@
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n    <modelVersion>4.0.0</modelVersion>\r\n\r\n    <groupId>com.livreescolha</groupId>\r\n    <artifactId>utilities</artifactId> \r\n    <version>1.0-SNAPSHOT</version>\r\n\r\n    <properties>\r\n        <maven.compiler.release>22</maven.compiler.release>\r\n    </properties>\r\n\r\n    <dependencies>\r\n        <dependency>\r\n            <groupId>com.formdev</groupId>\r\n            <artifactId>flatlaf</artifactId>\r\n            <version>3.5.1</version>\r\n        </dependency>\r\n\r\n        <dependency>\r\n            <groupId>com.formdev</groupId>\r\n            <artifactId>flatlaf-intellij-themes</artifactId>\r\n            <version>3.5.1</version>\r\n        </dependency>\r\n\r\n    </dependencies>\r\n\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision cba52d883123d027a42cdafd4fbcf5440fbdfb34)
++++ b/pom.xml	(date 1725015100003)
+@@ -5,7 +5,7 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <groupId>com.livreescolha</groupId>
+-    <artifactId>utilities</artifactId> 
++    <artifactId>utilities</artifactId>
+     <version>1.0-SNAPSHOT</version>
+ 
+     <properties>
+@@ -24,7 +24,25 @@
+             <artifactId>flatlaf-intellij-themes</artifactId>
+             <version>3.5.1</version>
+         </dependency>
+-
+     </dependencies>
+ 
+-</project>
+\ No newline at end of file
++    <build>
++        <plugins>
++            <plugin>
++                <groupId>org.codehaus.mojo</groupId>
++                <artifactId>exec-maven-plugin</artifactId>
++                <version>3.4.1</version>
++                <executions>
++                    <execution>
++                        <goals>
++                            <goal>java</goal>
++                        </goals>
++                        <configuration>
++                            <mainClass>java.lang.Class.TelaPrincipal</mainClass>
++                        </configuration>
++                    </execution>
++                </executions>
++            </plugin>
++        </plugins>
++    </build>
++</project>
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\r\n  <component name=\"MavenProjectsManager\">\r\n    <option name=\"originalFiles\">\r\n      <list>\r\n        <option value=\"$PROJECT_DIR$/pom.xml\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_22\" default=\"true\" project-jdk-name=\"22\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/out\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision cba52d883123d027a42cdafd4fbcf5440fbdfb34)
++++ b/.idea/misc.xml	(date 1724932880468)
+@@ -8,6 +8,10 @@
+       </list>
+     </option>
+   </component>
++  <component name="PWA">
++    <option name="enabled" value="true" />
++    <option name="wasEnabledAtLeastOnce" value="true" />
++  </component>
+   <component name="ProjectRootManager" version="2" languageLevel="JDK_22" default="true" project-jdk-name="22" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/out" />
+   </component>
+Index: .idea/compiler.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"CompilerConfiguration\">\r\n    <annotationProcessing>\r\n      <profile name=\"Maven default annotation processors profile\" enabled=\"true\">\r\n        <sourceOutputDir name=\"target/generated-sources/annotations\" />\r\n        <sourceTestOutputDir name=\"target/generated-test-sources/test-annotations\" />\r\n        <outputRelativeToContentRoot value=\"true\" />\r\n        <module name=\"Livre_Escolha_Utilities\" />\r\n      </profile>\r\n    </annotationProcessing>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/compiler.xml b/.idea/compiler.xml
+--- a/.idea/compiler.xml	(revision cba52d883123d027a42cdafd4fbcf5440fbdfb34)
++++ b/.idea/compiler.xml	(date 1724932819689)
+@@ -6,6 +6,7 @@
+         <sourceOutputDir name="target/generated-sources/annotations" />
+         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+         <outputRelativeToContentRoot value="true" />
++        <module name="utilities" />
+         <module name="Livre_Escolha_Utilities" />
+       </profile>
+     </annotationProcessing>
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectModuleManager\">\r\n    <modules>\r\n      <module fileurl=\"file://$PROJECT_DIR$/Livre_Escolha_Utilities.iml\" filepath=\"$PROJECT_DIR$/Livre_Escolha_Utilities.iml\" />\r\n    </modules>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+--- a/.idea/modules.xml	(revision cba52d883123d027a42cdafd4fbcf5440fbdfb34)
++++ b/.idea/modules.xml	(date 1724964937523)
+@@ -2,7 +2,7 @@
+ <project version="4">
+   <component name="ProjectModuleManager">
+     <modules>
+-      <module fileurl="file://$PROJECT_DIR$/Livre_Escolha_Utilities.iml" filepath="$PROJECT_DIR$/Livre_Escolha_Utilities.iml" />
++      <module fileurl="file://$PROJECT_DIR$/utilities.iml" filepath="$PROJECT_DIR$/utilities.iml" />
+     </modules>
+   </component>
+ </project>
+\ No newline at end of file
+Index: utilities.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/utilities.iml b/utilities.iml
+new file mode 100644
+--- /dev/null	(date 1724964937517)
++++ b/utilities.iml	(date 1724964937517)
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module version="4">
++  <component name="AdditionalModuleElements">
++    <content url="file://$MODULE_DIR$" dumb="true">
++      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" generated="true" />
++    </content>
++  </component>
++</module>
+\ No newline at end of file
