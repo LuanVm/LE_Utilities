@@ -9,7 +9,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, ProcessamentoAgitel OK" />
+    <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, ProcessamentoAgitel + check de tratamento">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel.class" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -124,7 +130,8 @@
       <workItem from="1725620423598" duration="21458000" />
       <workItem from="1725878729728" duration="822000" />
       <workItem from="1725883119128" duration="432000" />
-      <workItem from="1725883567069" duration="2696000" />
+      <workItem from="1725883567069" duration="3043000" />
+      <workItem from="1725887125418" duration="16032000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -214,7 +221,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725886279099</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Update, ProcessamentoAgitel + check de tratamento">
+      <option name="closed" value="true" />
+      <created>1725886629342</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1725886629342</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -227,7 +242,8 @@
     <MESSAGE value="Update, Merge de PlanlhaMerge - JDialog" />
     <MESSAGE value="Update, ProcessamentoAgitel, 85%" />
     <MESSAGE value="Update, ProcessamentoAgitel OK" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update, ProcessamentoAgitel OK" />
+    <MESSAGE value="Update, ProcessamentoAgitel + check de tratamento" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update, ProcessamentoAgitel + check de tratamento" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
