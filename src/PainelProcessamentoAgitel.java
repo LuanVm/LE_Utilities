@@ -22,8 +22,8 @@ public class PainelProcessamentoAgitel {
     private JFileChooser fileChooser;
     private JProgressBar progressBar;
     private SwingWorker<Void, String> worker;
-    private int totalSheets;  // Total de abas
-    private int totalLinhas;  // Total de linhas
+    private int totalSheets;
+    private int totalLinhas;
 
     // Cache de estilos
     private CellStyle generalStyle;
@@ -110,7 +110,6 @@ public class PainelProcessamentoAgitel {
             return;
         }
 
-        // Atualizar a barra de progresso para o estado indeterminado enquanto processa
         progressBar.setIndeterminate(true);
         progressBar.setString("Processando...");
         progressBar.setStringPainted(true);
@@ -126,12 +125,10 @@ public class PainelProcessamentoAgitel {
                     totalLinhas = calcularTotalLinhas(workbook); // Calcula o total de linhas
                     File outputFile = new File(file.getParent(), "leitura_agitel.xlsx");
 
-                    // Mantém um cache de 50 linhas na memória
                     try (SXSSFWorkbook outputWorkbook = new SXSSFWorkbook(50)) {
-                        int abaIndex = 1; // Controla o número da aba
+                        int abaIndex = 1;
                         SXSSFSheet outputSheet = outputWorkbook.createSheet("Dados Copiados " + abaIndex);
 
-                        // Adiciona cabeçalhos na primeira linha
                         Row headerRow = outputSheet.createRow(0);
                         String[] headers = {"Data", "Origem", "Servico", "Regiao", "Destino", "Duracao", "Preco"};
                         for (int i = 0; i < headers.length; i++) {
@@ -139,9 +136,9 @@ public class PainelProcessamentoAgitel {
                         }
 
                         int rowIndex = 1;
+
                         int linhasProcessadas = 0;
 
-                        // Inicialize os estilos apenas uma vez
                         if (generalStyle == null) {
                             generalStyle = outputWorkbook.createCellStyle();
                             generalStyle.setDataFormat(outputWorkbook.getCreationHelper().createDataFormat().getFormat("General"));
@@ -157,33 +154,24 @@ public class PainelProcessamentoAgitel {
                             publish("Processando aba: " + sheet.getSheetName() + " (" + sheet.getLastRowNum() + " linhas)");
 
                             Row header = findHeaderRow(sheet);
-
                             if (header != null) {
                                 int startRowIndex = header.getRowNum() + 1;
 
                                 for (int rowIndexInSheet = startRowIndex; rowIndexInSheet <= sheet.getLastRowNum(); rowIndexInSheet++) {
                                     Row row = sheet.getRow(rowIndexInSheet);
-                                    if (row != null) {
-                                        // Verifica se a aba atingiu o limite máximo de linhas
-                                        if (rowIndex >= 1048576) {
-                                            abaIndex++;
-                                            outputSheet = outputWorkbook.createSheet("Dados Copiados " + abaIndex);
-                                            rowIndex = 1; // Reseta o índice de linha para a nova aba
+                                    if (row != null && !isRowEmpty(row)) {
+                                        // Encontra a próxima linha vazia na aba de saída
+                                        int nextAvailableRowIndex = findNextAvailableRow(outputSheet);
 
-                                            // Adiciona os cabeçalhos na nova aba
-                                            headerRow = outputSheet.createRow(0);
-                                            for (int j = 0; j < headers.length; j++) {
-                                                headerRow.createCell(j).setCellValue(headers[j]);
-                                            }
-                                        }
+                                        // Cria uma nova linha na aba de saída na próxima linha disponível
+                                        Row outputRow = outputSheet.createRow(nextAvailableRowIndex);
 
-                                        // Cria a nova linha
-                                        Row outputRow = outputSheet.createRow(rowIndex++);
+                                        // Copia os dados da linha atual
                                         copyRow(row, outputRow, outputWorkbook);
                                     }
+
                                     linhasProcessadas++;
 
-                                    // Atualiza a barra de progresso a cada 100 linhas processadas
                                     if (linhasProcessadas % 100 == 0) {
                                         int progress = (int) (((double) linhasProcessadas / totalLinhas) * 100);
                                         setProgress(progress);
@@ -191,11 +179,9 @@ public class PainelProcessamentoAgitel {
                                 }
                             }
 
-                            // Libera memória da aba processada
                             ((SXSSFSheet) outputSheet).flushRows(50);
                         }
 
-                        // Salva o arquivo final após o processamento de todas as abas
                         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
                             outputWorkbook.write(fos);
                         }
@@ -249,46 +235,70 @@ public class PainelProcessamentoAgitel {
         return null;
     }
 
-    private int calcularTotalLinhas(XSSFWorkbook workbook) {
-        int total = 0;
-        for (int i = 1; i < workbook.getNumberOfSheets(); i++) {
-            total += workbook.getSheetAt(i).getLastRowNum();
-        }
-        return total;
-    }
-
-    private void copyRow(Row srcRow, Row destRow, SXSSFWorkbook outputWorkbook) {
-        for (int i = 0; i < srcRow.getLastCellNum(); i++) {
-            Cell srcCell = srcRow.getCell(i);
-            Cell destCell = destRow.createCell(i);
-
-            if (srcCell != null) {
-                switch (srcCell.getCellType()) {
-                    case NUMERIC:
-                        if (DateUtil.isCellDateFormatted(srcCell)) {
-                            destCell.setCellValue(srcCell.getDateCellValue());
-                            destCell.setCellStyle(dateStyle);  // Reutilize o estilo de data
-                        } else {
-                            destCell.setCellValue(srcCell.getNumericCellValue());
-                        }
-                        break;
-                    case STRING:
-                        destCell.setCellValue(srcCell.getStringCellValue());
-                        break;
-                    case BOOLEAN:
-                        destCell.setCellValue(srcCell.getBooleanCellValue());
-                        break;
-                    case FORMULA:
-                        destCell.setCellValue(srcCell.getCellFormula());
-                        break;
-                    default:
-                        destCell.setCellValue(srcCell.toString());
-                        break;
-                }
-
-                destCell.setCellStyle(generalStyle);  // Reutilize o estilo geral
+    private void copyRow(Row sourceRow, Row targetRow, SXSSFWorkbook workbook) {
+        for (int i = 0; i < 7; i++) { // Copiando até a coluna G (índice 6)
+            Cell sourceCell = sourceRow.getCell(i);
+            Cell targetCell = targetRow.createCell(i);
+            if (sourceCell != null) {
+                copyCell(sourceCell, targetCell, workbook);
             }
         }
+    }
+
+    private void copyCell(Cell sourceCell, Cell targetCell, SXSSFWorkbook workbook) {
+        switch (sourceCell.getCellType()) {
+            case STRING:
+                targetCell.setCellValue(sourceCell.getStringCellValue());
+                targetCell.setCellStyle(generalStyle);
+                break;
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(sourceCell)) {
+                    targetCell.setCellValue(sourceCell.getNumericCellValue());
+                    targetCell.setCellStyle(dateStyle);
+                } else {
+                    targetCell.setCellValue(sourceCell.getNumericCellValue());
+                    targetCell.setCellStyle(generalStyle);
+                }
+                break;
+            case BOOLEAN:
+                targetCell.setCellValue(sourceCell.getBooleanCellValue());
+                targetCell.setCellStyle(generalStyle);
+                break;
+            case FORMULA:
+                targetCell.setCellFormula(sourceCell.getCellFormula());
+                targetCell.setCellStyle(generalStyle);
+                break;
+            default:
+                targetCell.setCellStyle(generalStyle);
+                break;
+        }
+    }
+
+    private int findNextAvailableRow(Sheet sheet) {
+        int rowIndex = sheet.getLastRowNum() + 1;
+        while (sheet.getRow(rowIndex) != null && !isRowEmpty(sheet.getRow(rowIndex))) {
+            rowIndex++;
+        }
+        return rowIndex;
+    }
+
+    private boolean isRowEmpty(Row row) {
+        for (int i = 0; i < 7; i++) { // Verifica até a coluna G
+            Cell cell = row.getCell(i);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int calcularTotalLinhas(XSSFWorkbook workbook) {
+        int totalLinhas = 0;
+        for (int i = 1; i < workbook.getNumberOfSheets(); i++) {
+            Sheet sheet = workbook.getSheetAt(i);
+            totalLinhas += sheet.getLastRowNum();
+        }
+        return totalLinhas;
     }
 
     private String getCellValue(Cell cell) {
@@ -297,8 +307,10 @@ public class PainelProcessamentoAgitel {
                 return cell.getStringCellValue();
             case NUMERIC:
                 return String.valueOf(cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
             default:
-                return cell.toString();
+                return "";
         }
     }
 
