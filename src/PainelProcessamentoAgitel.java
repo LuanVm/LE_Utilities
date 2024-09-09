@@ -1,4 +1,5 @@
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -120,7 +121,9 @@ public class PainelProcessamentoAgitel {
                     totalSheets = workbook.getNumberOfSheets() - 1; // Exclui a primeira aba
                     totalLinhas = calcularTotalLinhas(workbook); // Calcula o total de linhas
                     File outputFile = new File(file.getParent(), "leitura_agitel.xlsx");
-                    try (SXSSFWorkbook outputWorkbook = new SXSSFWorkbook()) {
+
+                    // Mantém um cache de 50 linhas na memória
+                    try (SXSSFWorkbook outputWorkbook = new SXSSFWorkbook(50)) {
                         Sheet outputSheet = outputWorkbook.createSheet("Dados Copiados");
 
                         // Adiciona cabeçalhos na primeira linha
@@ -150,16 +153,22 @@ public class PainelProcessamentoAgitel {
                                         copyRow(row, outputRow);
                                     }
                                     linhasProcessadas++;
-                                    // Atualiza a barra de progresso
-                                    int progress = (int) (((double) linhasProcessadas / totalLinhas) * 100);
-                                    setProgress(progress);
+
+                                    // Atualiza a barra de progresso a cada 100 linhas processadas
+                                    if (linhasProcessadas % 100 == 0) {
+                                        int progress = (int) (((double) linhasProcessadas / totalLinhas) * 100);
+                                        setProgress(progress);
+                                    }
                                 }
                             }
 
                             // Pausa para evitar sobrecarga de CPU
-                            if (i % 5 == 0) {
-                                Thread.sleep(100);  // Pausa por 100ms a cada 5 abas
+                            if (i % 1 == 0) {
+                                Thread.sleep(100);  // Pausa por 100ms a cada 1 aba
                             }
+
+                            // Libera memória da aba processada
+                            ((SXSSFSheet) outputSheet).flushRows(50);
 
                             // Salva o arquivo parcial
                             try (FileOutputStream fos = new FileOutputStream(outputFile)) {
@@ -251,9 +260,9 @@ public class PainelProcessamentoAgitel {
             case STRING:
                 return cell.getStringCellValue();
             case NUMERIC:
-                return cell.getNumericCellValue() + "";
+                return String.valueOf(cell.getNumericCellValue());
             case BOOLEAN:
-                return cell.getBooleanCellValue() + "";
+                return String.valueOf(cell.getBooleanCellValue());
             default:
                 return null;
         }
@@ -261,7 +270,7 @@ public class PainelProcessamentoAgitel {
 
     private int calcularTotalLinhas(XSSFWorkbook workbook) {
         int totalLinhas = 0;
-        for (int i = 1; i < workbook.getNumberOfSheets(); i++) {
+        for (int i = 1; i < workbook.getNumberOfSheets(); i++) { // Ignora a primeira aba
             totalLinhas += workbook.getSheetAt(i).getLastRowNum();
         }
         return totalLinhas;

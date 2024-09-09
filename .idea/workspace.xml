@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="utilities:jar" />
+    </artifacts-to-build>
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, Merge de PlanlhaMerge - JDialog">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GerenciadorAbas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GerenciadorAbas.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PlanilhaMergerPanel.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TelaPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TelaPrincipal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$ColumnSelectDialog.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel$MesclarArquivosWorker.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/PlanilhaMergerPanel.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/TelaPrincipal$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/TelaPrincipal$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/TelaPrincipal$CustomButton.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/TelaPrincipal.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/TelaPrincipal.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/GerenciadorAbas.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/GerenciadorAbas.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,15 +69,13 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.5&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;settings.qodana&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="QodanaReportsService">
-    <option name="descriptions">
-      <ReportDescription localRun="true" path="C:\Users\LUANVITOR\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="f9f17321-d85b-46d1-80bb-febf77b0a2aa" reportId="Livre_Escolha_Utilities/qodana/2024-09-02" />
-    </option>
-  </component>
   <component name="RunManager">
     <configuration name="TelaPrincipal" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="TelaPrincipal" />
@@ -129,7 +123,8 @@
       <workItem from="1725544439685" duration="253000" />
       <workItem from="1725544760464" duration="12066000" />
       <workItem from="1725569697789" duration="99000" />
-      <workItem from="1725620423598" duration="19925000" />
+      <workItem from="1725620423598" duration="21458000" />
+      <workItem from="1725878729728" duration="822000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -187,7 +182,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725569732159</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Update, Merge de PlanlhaMerge - JDialog">
+      <option name="closed" value="true" />
+      <created>1725654340439</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1725654340439</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
