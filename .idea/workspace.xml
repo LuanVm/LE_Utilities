@@ -11,10 +11,12 @@
   <component name="ChangeListManager">
     <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, ProcessamentoAgitel + check de tratamento">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$2.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/utilities-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/utilities-1.0-SNAPSHOT.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,28 +60,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.MescladorDePlanilhas.executor": "Run",
-    "Application.TelaPrincipal.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "deletionFromPopupRequiresConfirmation": "false",
-    "git-widget-placeholder": "LE__Utilities",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/LUANVITOR/Desktop/Geral/00. Works/Livre_Escolha_Utilities",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Artifacts",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.5",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.MescladorDePlanilhas.executor&quot;: &quot;Run&quot;,
+    &quot;Application.TelaPrincipal.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;LE__Utilities&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/LUANVITOR/Desktop/Geral/00. Works/Livre_Escolha_Utilities&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.5&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="TelaPrincipal" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="TelaPrincipal" />
@@ -131,7 +133,11 @@
       <workItem from="1725878729728" duration="822000" />
       <workItem from="1725883119128" duration="432000" />
       <workItem from="1725883567069" duration="3043000" />
-      <workItem from="1725887125418" duration="16032000" />
+      <workItem from="1725887125418" duration="16054000" />
+      <workItem from="1725965768768" duration="7758000" />
+      <workItem from="1725976967948" duration="9139000" />
+      <workItem from="1726000790888" duration="940000" />
+      <workItem from="1726053518181" duration="26995000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -229,7 +235,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725886629342</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Update, ProcessamentoAgitel + check de tratamento">
+      <option name="closed" value="true" />
+      <created>1725915224128</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1725915224128</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

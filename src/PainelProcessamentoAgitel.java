@@ -1,13 +1,9 @@
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.AreaReference;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFTable;
-import org.apache.poi.xssf.usermodel.XSSFTableStyleInfo;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumn;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumns;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -19,22 +15,38 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.IntStream;
 
 public class PainelProcessamentoAgitel {
 
+    // Componentes da interface
     private JTextArea textAreaResultados;
     private JFileChooser fileChooser;
     private JProgressBar progressBar;
-    private SwingWorker<Void, String> worker;
-    private int totalSheets;  // Total de abas
-    private int totalLinhas;  // Total de linhas
+    private JCheckBox checkboxEqualizar;
 
-    // Cache de estilos
+    // Variáveis de controle
+    private SwingWorker<Void, String> worker;
+    private int totalSheets;
+    private int totalLinhas;
+
+    // Cache de estilos para células
     private CellStyle generalStyle;
     private CellStyle dateStyle;
     private CellStyle accountingStyle;
+
+    // Constantes de colunas para facilitar manutenção
+    private static final int COLUNA_HORARIO = 0;
+    private static final int COLUNA_SETOR = 1;
+    private static final int COLUNA_IDENTIFICADOR = 2;
+    private static final int COLUNA_REGIAO = 3;
+    private static final int COLUNA_NUMERO_DESTINO = 4;
+    private static final int COLUNA_DURACAO = 5;
+    private static final int COLUNA_VALOR = 6;
 
     public PainelProcessamentoAgitel(JTextArea textAreaResultados) {
         this.textAreaResultados = textAreaResultados;
@@ -42,208 +54,349 @@ public class PainelProcessamentoAgitel {
         this.progressBar = new JProgressBar();
     }
 
+    // Método para criar o painel principal
     public JPanel criarPainel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JPanel inputPanel = criarPainelInput();
-        JScrollPane scrollPaneResultados = criarScrollPaneResultados();
-
-        panel.add(inputPanel, BorderLayout.NORTH);
-        panel.add(scrollPaneResultados, BorderLayout.CENTER);
+        // Adiciona subcomponentes ao painel
+        panel.add(criarPainelInput(), BorderLayout.NORTH);
+        panel.add(criarScrollPaneResultados(), BorderLayout.CENTER);
         panel.add(progressBar, BorderLayout.SOUTH);
 
         return panel;
     }
 
+    // Método para criar o painel de input
     private JPanel criarPainelInput() {
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Processamento de Arquivo Excel", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
+        inputPanel.setBorder(new TitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY),
+                "Processamento de Arquivo Excel",
+                TitledBorder.LEFT,
+                TitledBorder.DEFAULT_POSITION,
+                new Font("Arial", Font.BOLD, 12)
+        ));
 
+        // Configurações do GridBagConstraints
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        JLabel labelArquivo = new JLabel("Arquivo:");
-        inputPanel.add(labelArquivo, gbc);
-
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
-        JTextField textArquivo = new JTextField(20);
-        inputPanel.add(textArquivo, gbc);
-
-        gbc.gridx = 2;
-        gbc.weightx = 0.0;
-        JButton buttonSelecionar = TelaPrincipal.criarBotao("Selecionar Arquivo");
-        inputPanel.add(buttonSelecionar, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 3;
-        gbc.anchor = GridBagConstraints.CENTER;
-        JButton buttonProcessar = TelaPrincipal.criarBotao("Processar");
-        inputPanel.add(buttonProcessar, gbc);
-
-        buttonSelecionar.addActionListener(e -> selecionarArquivo(textArquivo));
-        buttonProcessar.addActionListener(e -> processarArquivo(textArquivo.getText()));
+        // Adiciona os componentes ao painel de input
+        adicionarComponentesPainelInput(inputPanel, gbc);
 
         return inputPanel;
     }
 
+    // Método para adicionar os componentes ao painel de input
+    private void adicionarComponentesPainelInput(JPanel inputPanel, GridBagConstraints gbc) {
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        inputPanel.add(new JLabel("Arquivo:"), gbc);
+
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        JTextField textArquivo = new JTextField(20);
+        inputPanel.add(textArquivo, gbc);
+
+        gbc.gridx = 3;
+        gbc.gridy = 0;
+        gbc.weightx = 0.0;
+        JButton buttonSelecionar = new JButton("Selecionar Arquivo");
+        inputPanel.add(buttonSelecionar, gbc);
+
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        JButton buttonProcessar = new JButton("Processar");
+        inputPanel.add(buttonProcessar, gbc);
+
+        gbc.gridx = 4;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        checkboxEqualizar = new JCheckBox("Equalizar 'Região'");
+        inputPanel.add(checkboxEqualizar, gbc);
+
+        // Configura os eventos de ação dos botões
+        buttonSelecionar.addActionListener(e -> selecionarArquivo(textArquivo));
+        buttonProcessar.addActionListener(e -> processarArquivo(textArquivo.getText()));
+    }
+
+    // Método para criar o JScrollPane que contém a área de texto de resultados
     private JScrollPane criarScrollPaneResultados() {
         textAreaResultados = new JTextArea(20, 60);
         textAreaResultados.setEditable(false);
         JScrollPane scrollPaneResultados = new JScrollPane(textAreaResultados);
-        scrollPaneResultados.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Resultados", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION, new Font("Arial", Font.BOLD, 12)));
+        scrollPaneResultados.setBorder(new TitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY),
+                "Resultados",
+                TitledBorder.LEFT,
+                TitledBorder.DEFAULT_POSITION,
+                new Font("Arial", Font.BOLD, 12)
+        ));
         return scrollPaneResultados;
     }
 
     private void selecionarArquivo(JTextField textArquivo) {
+        // Configura o JFileChooser para permitir apenas a seleção de arquivos
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        // Exibe a caixa de diálogo para seleção do arquivo
         int returnValue = fileChooser.showOpenDialog(null);
+
+        // Verifica se um arquivo foi selecionado com sucesso
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            textArquivo.setText(selectedFile.getAbsolutePath());
+            textArquivo.setText(selectedFile.getAbsolutePath()); // Atualiza o campo de texto com o caminho do arquivo selecionado
         }
     }
 
     private void processarArquivo(String filePath) {
         File file = new File(filePath);
+
+        // Validação do arquivo: se não existe ou é um diretório
         if (!file.exists() || file.isDirectory()) {
             exibirMensagemErro("Arquivo inválido.");
             return;
         }
 
-        progressBar.setIndeterminate(true);
+        // Configura e inicia o processamento
+        configurarProgressBar();
+        iniciarWorker(file);
+    }
+
+    private void configurarProgressBar() {
+        progressBar.setIndeterminate(false); // Mude para modo determinado
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(100);
+        progressBar.setValue(0);
         progressBar.setString("Processando...");
         progressBar.setStringPainted(true);
+    }
 
+    private void finalizarProcessamento() {
+        progressBar.setIndeterminate(false);
+        progressBar.setValue(100);
+        progressBar.setString("Processamento concluído!");
+
+        try {
+            worker.get(); // Aguarda o término do SwingWorker
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            exibirMensagemErro("Erro durante o processamento.");
+        }
+    }
+
+    private void exibirMensagemErro(String mensagem) {
+        JOptionPane.showMessageDialog(null, mensagem, "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void salvarArquivo(SXSSFWorkbook workbook, File file) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            workbook.write(fos);
+            fos.flush();
+        }
+    }
+
+    private void aplicarEstilos(Row outputRow) {
+        Cell cellDuracao = outputRow.getCell(COLUNA_DURACAO);
+        if (cellDuracao != null) {
+            cellDuracao.setCellStyle(dateStyle);
+        }
+
+        Cell cellValor = outputRow.getCell(COLUNA_VALOR);
+        if (cellValor != null) {
+            cellValor.setCellStyle(accountingStyle);
+        }
+    }
+
+    private Row criarCabecalho(SXSSFSheet outputSheet) {
+        Row headerRow = outputSheet.createRow(0);
+        String[] columnNames = {"Horário", "Setor", "Identificador", "Região", "Número_Destino", "Duração", "Valor"};
+
+        for (int i = 0; i < columnNames.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columnNames[i]);
+            cell.setCellStyle(generalStyle);
+        }
+        return headerRow;
+    }
+
+    private void configurarEstilos(SXSSFWorkbook workbook) {
+        generalStyle = workbook.createCellStyle();
+        generalStyle.setDataFormat(workbook.createDataFormat().getFormat("General"));
+
+        dateStyle = workbook.createCellStyle();
+        dateStyle.setDataFormat(workbook.createDataFormat().getFormat("hh:mm:ss"));
+
+        accountingStyle = workbook.createCellStyle();
+        accountingStyle.setDataFormat(workbook.createDataFormat().getFormat("R$ 0.00"));
+    }
+
+    private void equalizarColunaRegiao(SXSSFWorkbook workbook) {
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+            SXSSFSheet sheet = workbook.getSheetAt(i);
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row != null) {
+                    Cell cell = row.getCell(COLUNA_REGIAO);
+                    if (cell != null && cell.getCellType() == CellType.STRING) {
+                        String value = cell.getStringCellValue().trim().toLowerCase();
+                        if (value.contains("Fixo")) {
+                            cell.setCellValue("Fixo");
+                        } else if (value.contains("Movel")) {
+                            cell.setCellValue("Movel");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void iniciarWorker(File file) {
         worker = new SwingWorker<Void, String>() {
-
             @Override
             protected Void doInBackground() throws Exception {
-                try (FileInputStream fis = new FileInputStream(file);
-                     XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
+                FileInputStream fis = null;
+                SXSSFWorkbook outputWorkbook = null;
 
-                    totalSheets = workbook.getNumberOfSheets() - 1;
+                try {
+                    fis = new FileInputStream(file);
+                    XSSFWorkbook workbook = new XSSFWorkbook(fis);
                     totalLinhas = calcularTotalLinhas(workbook);
                     File outputFile = new File(file.getParent(), "leitura_agitel.xlsx");
 
-                    try (SXSSFWorkbook outputWorkbook = new SXSSFWorkbook(50)) {
-                        generalStyle = outputWorkbook.createCellStyle();
-                        generalStyle.setDataFormat(outputWorkbook.getCreationHelper().createDataFormat().getFormat("General"));
+                    outputWorkbook = new SXSSFWorkbook(500);
+                    configurarEstilos(outputWorkbook);
+                    SXSSFSheet outputSheet = outputWorkbook.createSheet("Dados Copiados");
+                    criarCabecalho(outputSheet);
 
-                        dateStyle = outputWorkbook.createCellStyle();
-                        dateStyle.setDataFormat(outputWorkbook.getCreationHelper().createDataFormat().getFormat("hh:mm:ss"));
+                    processarAbas(workbook, outputWorkbook, outputSheet);
 
-                        accountingStyle = outputWorkbook.createCellStyle();
-                        accountingStyle.setDataFormat(outputWorkbook.getCreationHelper().createDataFormat().getFormat("R$ 0.00"));
-
-                        int abaIndex = 1;
-                        SXSSFSheet outputSheet = outputWorkbook.createSheet("Dados Copiados " + abaIndex);
-
-                        // Defina os cabeçalhos da tabela na primeira linha
-                        Row headerRow = outputSheet.createRow(0);
-                        String[] columnNames = {"Horário", "Setor", "Identificador", "Região", "Número Destino", "Duração", "Valor"};
-                        for (int i = 0; i < columnNames.length; i++) {
-                            Cell cell = headerRow.createCell(i);
-                            cell.setCellValue(columnNames[i]);
-                            cell.setCellStyle(generalStyle);
-                        }
-
-                        int rowIndex = 1;
-                        int linhasProcessadas = 0;
-
-                        for (int i = 1; i < workbook.getNumberOfSheets(); i++) { // Ignora a primeira aba (i = 1)
-                            XSSFSheet sheet = (XSSFSheet) workbook.getSheetAt(i);
-
-                            publish("Processando aba: " + sheet.getSheetName() + " (" + sheet.getLastRowNum() + " linhas)");
-
-                            Row header = findHeaderRow(sheet);
-
-                            if (header != null) {
-                                int startRowIndex = header.getRowNum() + 1;
-
-                                for (int rowIndexInSheet = startRowIndex; rowIndexInSheet <= sheet.getLastRowNum(); rowIndexInSheet++) {
-                                    Row row = sheet.getRow(rowIndexInSheet);
-                                    if (row != null) {
-                                        if (rowIndex >= 1048576) {
-                                            abaIndex++;
-                                            outputSheet = outputWorkbook.createSheet("Dados Copiados " + abaIndex);
-
-                                            // Defina os cabeçalhos na nova aba
-                                            headerRow = outputSheet.createRow(0);
-                                            for (int j = 0; j < columnNames.length; j++) {
-                                                Cell cell = headerRow.createCell(j);
-                                                cell.setCellValue(columnNames[j]);
-                                                cell.setCellStyle(generalStyle);
-                                            }
-
-                                            rowIndex = 1;
-                                        }
-
-                                        Row outputRow = outputSheet.createRow(rowIndex++);
-                                        copyRow(row, outputRow, outputWorkbook);
-
-                                        // Ajuste a formatação das células após a cópia
-                                        Cell cellF = outputRow.getCell(5); // Coluna F
-                                        if (cellF != null && cellF.getCellType() == CellType.NUMERIC) {
-                                            double numericValue = cellF.getNumericCellValue();
-                                            if (numericValue == -1) {
-                                                cellF.setBlank(); // Ignora valores -1 na coluna F
-                                            } else {
-                                                cellF.setCellStyle(generalStyle);
-                                            }
-                                        }
-
-                                        Cell cellG = outputRow.getCell(6); // Coluna G
-                                        if (cellG != null && cellG.getCellType() == CellType.NUMERIC) {
-                                            cellG.setCellStyle(accountingStyle);
-                                        }
-                                    }
-                                    linhasProcessadas++;
-
-                                    // Atualiza a ProgressBar progressivamente
-                                    int progress = (int) (((double) linhasProcessadas / totalLinhas) * 100);
-                                    setProgress(progress);
-                                }
-                            }
-
-                            outputSheet.flushRows(50);
-                        }
-
-                        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-                            outputWorkbook.write(fos);
-                        }
-
-                        publish("Processamento finalizado com sucesso.");
+                    if (checkboxEqualizar.isSelected()) {
+                        equalizarColunaRegiao(outputWorkbook);
                     }
+                    removerLinhasVazias(outputWorkbook);
+                    salvarArquivo(outputWorkbook, outputFile);
+                    publish("Processamento finalizado com sucesso.");
+
+                    // Limpeza de memória
+                    workbook.close();
+                    outputWorkbook.dispose();
                 } finally {
-                    System.gc(); // Tenta limpar a memória
+                    if (fis != null) {
+                        fis.close();
+                    }
+                    if (outputWorkbook != null) {
+                        outputWorkbook.dispose();
+                    }
+                    System.gc(); // Sugere ao sistema para realizar a coleta de lixo
                 }
                 return null;
             }
 
             @Override
             protected void process(List<String> chunks) {
-                for (String message : chunks) {
-                    textAreaResultados.append(message + "\n");
-                }
+                chunks.forEach(message -> textAreaResultados.append(message + "\n"));
             }
 
             @Override
             protected void done() {
-                progressBar.setIndeterminate(false);
-                progressBar.setValue(100);
-                progressBar.setString("Processamento concluído!");
-                try {
-                    get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                    exibirMensagemErro("Erro durante o processamento.");
+                finalizarProcessamento();
+            }
+
+            private void processarAbas(XSSFWorkbook workbook, SXSSFWorkbook outputWorkbook, SXSSFSheet outputSheet) throws Exception {
+                int rowIndex = 0;
+                int linhasProcessadas = 0;
+
+                criarCabecalho(outputSheet);
+                rowIndex++;
+
+                for (int i = 1; i < workbook.getNumberOfSheets(); i++) {
+                    XSSFSheet sheet = workbook.getSheetAt(i);
+                    publish("Processando aba: " + sheet.getSheetName() + " (" + sheet.getLastRowNum() + " linhas)");
+
+                    Row header = findHeaderRow(sheet);
+                    if (header == null) continue;
+
+                    int startRowIndex = header.getRowNum() + 1;
+
+                    for (int rowIndexInSheet = startRowIndex; rowIndexInSheet <= sheet.getLastRowNum(); rowIndexInSheet++) {
+                        Row row = sheet.getRow(rowIndexInSheet);
+                        if (row != null && !isRowEmpty(row)) {
+                            if (rowIndex >= 1048576) {
+                                outputSheet = outputWorkbook.createSheet("Dados Copiados " + (outputWorkbook.getSheetIndex(outputSheet) + 2));
+                                rowIndex = 0;
+                            }
+
+                            Row outputRow = outputSheet.createRow(rowIndex);
+                            copyRow(row, outputRow);
+                            aplicarEstilos(outputRow);
+
+                            if (rowIndex % 5000 == 0) {
+                                outputSheet.flushRows(5000);
+                            }
+
+                            rowIndex++;
+                            linhasProcessadas++;
+                            atualizarProgresso(linhasProcessadas);
+                        }
+                    }
+                }
+
+                while (outputWorkbook.getNumberOfSheets() > 1) {
+                    SXSSFSheet segundaSheet = outputWorkbook.getSheetAt(1);
+                    if (segundaSheet.getLastRowNum() > 0) {
+                        copiarDadosParaPrimeiraAba(outputWorkbook, segundaSheet, outputSheet);
+                    }
+                    outputWorkbook.removeSheetAt(1);
+                }
+            }
+
+            private void copiarDadosParaPrimeiraAba(SXSSFWorkbook outputWorkbook, SXSSFSheet segundaSheet, SXSSFSheet primeiraSheet) {
+                int proximaLinhaVazia = encontrarProximaLinhaVazia(primeiraSheet);
+                int rowIndexSegundaSheet = 1;
+
+                while (rowIndexSegundaSheet <= segundaSheet.getLastRowNum()) {
+                    Row row = segundaSheet.getRow(rowIndexSegundaSheet);
+                    if (row != null) {
+                        // Verifica se atingiu o limite de linhas da aba
+                        if (proximaLinhaVazia >= 1048576) {
+                            // Cria uma nova aba se o limite de linhas for atingido
+                            primeiraSheet = outputWorkbook.createSheet("Dados Copiados " + (outputWorkbook.getNumberOfSheets() + 1));
+                            proximaLinhaVazia = 0;
+                            criarCabecalho(primeiraSheet); // Cria o cabeçalho na nova aba
+                        }
+
+                        // Cria uma nova linha apenas se não já foi gravada no disco
+                        if (proximaLinhaVazia > primeiraSheet.getLastRowNum()) {
+                            Row outputRow = primeiraSheet.createRow(proximaLinhaVazia++);
+                            copyRow(row, outputRow);
+                            aplicarEstilos(outputRow);
+                        }
+                    }
+                    rowIndexSegundaSheet++;
+                }
+            }
+
+            private int encontrarProximaLinhaVazia(SXSSFSheet sheet) {
+                for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                    Row row = sheet.getRow(rowIndex);
+                    if (row == null || isRowEmpty(row)) {
+                        return rowIndex;
+                    }
+                }
+                return sheet.getLastRowNum() + 1;
+            }
+
+            private void atualizarProgresso(int linhasProcessadas) {
+                if (totalLinhas > 0) {
+                    int progress = (int) (((double) linhasProcessadas / totalLinhas) * 100);
+                    setProgress(progress); // Atualiza o progresso do SwingWorker
+                } else {
+                    setProgress(100); // Se totalLinhas é 0, define como 100%
                 }
             }
         };
@@ -255,159 +408,78 @@ public class PainelProcessamentoAgitel {
                 progressBar.setString(progress + "%");
             }
         });
-
         worker.execute();
     }
 
-    private int calcularTotalLinhas(XSSFWorkbook workbook) {
-        int totalLinhas = 0;
-        for (int i = 1; i < workbook.getNumberOfSheets(); i++) {
-            XSSFSheet sheet = (XSSFSheet) workbook.getSheetAt(i);
-            totalLinhas += sheet.getLastRowNum() + 1; // Ajustado para contar todas as linhas
-        }
-        return totalLinhas;
-    }
-
-    private void criarTabela(XSSFSheet sheet, int abaIndex) {
-        XSSFTable table = sheet.createTable(null);
-        table.setDisplayName("Tabela" + abaIndex); // Nome único para cada aba
-
-        // Verifica se há pelo menos duas linhas antes de criar a tabela
-        int lastRowNum = sheet.getLastRowNum();
-        if (lastRowNum >= 1) {
-            AreaReference reference = sheet.getWorkbook().getCreationHelper().createAreaReference("A1:G" + (lastRowNum + 1));
-            table.setArea(reference);
-
-            // Estilo da Tabela
-            XSSFTableStyleInfo style = (XSSFTableStyleInfo) table.getStyle();
-            style.setName("TableStyleMedium2");
-            style.setShowColumnStripes(true);
-            style.setShowRowStripes(true);
-
-            // Colunas
-            CTTableColumns columns = table.getCTTable().addNewTableColumns();
-            columns.setCount(7);
-
-            String[] columnNames = {"Horário", "Setor", "Identificador", "Região", "Número Destino", "Duração", "Valor"};
-            for (int i = 0; i < columnNames.length; i++) {
-                CTTableColumn column = columns.addNewTableColumn();
-                column.setId(i + 1);
-                column.setName(columnNames[i]);
+    private void copyRow(Row sourceRow, Row outputRow) {
+        for (int i = 0; i < sourceRow.getLastCellNum(); i++) {
+            Cell sourceCell = sourceRow.getCell(i);
+            if (sourceCell != null) {
+                Cell newCell = outputRow.createCell(i);
+                copiarConteudoECelula(sourceCell, newCell);
             }
         }
     }
 
+    private void copiarConteudoECelula(Cell sourceCell, Cell newCell) {
+        switch (sourceCell.getCellType()) {
+            case STRING:
+                newCell.setCellValue(sourceCell.getStringCellValue());
+                break;
+            case NUMERIC:
+                newCell.setCellValue(sourceCell.getNumericCellValue());
+                if (DateUtil.isCellDateFormatted(sourceCell)) {
+                    newCell.setCellStyle(dateStyle);
+                } else {
+                    newCell.setCellStyle(generalStyle);
+                }
+                break;
+            case BOOLEAN:
+                newCell.setCellValue(sourceCell.getBooleanCellValue());
+                break;
+            case FORMULA:
+                newCell.setCellFormula(sourceCell.getCellFormula());
+                break;
+            default:
+                newCell.setCellStyle(generalStyle);
+        }
+    }
+
+    private int calcularTotalLinhas(XSSFWorkbook workbook) {
+        return IntStream.range(0, workbook.getNumberOfSheets())
+                .map(i -> workbook.getSheetAt(i).getLastRowNum())
+                .sum();
+    }
+
     private Row findHeaderRow(Sheet sheet) {
-        for (int rowIndex = 0; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
-            Row row = sheet.getRow(rowIndex);
-            if (row != null) {
-                boolean isHeader = true;
-                for (int cellIndex = 0; cellIndex < row.getLastCellNum(); cellIndex++) {
-                    Cell cell = row.getCell(cellIndex);
-                    if (cell == null || cell.getCellType() == CellType.BLANK || cell.getCellType() == CellType.NUMERIC) {
-                        isHeader = false;
-                        break;
-                    }
-                }
-                if (isHeader) {
-                    return row;
-                }
+        for (Row row : sheet) {
+            if (row != null && row.getCell(0) != null &&
+                    "Data".equalsIgnoreCase(row.getCell(0).getStringCellValue())) {
+                return row;
             }
         }
         return null;
     }
 
-    private void copyRow(Row sourceRow, Row targetRow, SXSSFWorkbook outputWorkbook) {
-        for (int i = 0; i < sourceRow.getLastCellNum(); i++) {
-            Cell sourceCell = sourceRow.getCell(i);
-            if (sourceCell != null) {
-                Cell targetCell = targetRow.createCell(i);
-                switch (sourceCell.getCellType()) {
-                    case STRING:
-                        targetCell.setCellValue(sourceCell.getStringCellValue());
-                        targetCell.setCellStyle(generalStyle);
-                        break;
-                    case NUMERIC:
-                        if (DateUtil.isCellDateFormatted(sourceCell)) {
-                            targetCell.setCellValue(sourceCell.getDateCellValue());
-                            targetCell.setCellStyle(dateStyle);
-                        } else {
-                            targetCell.setCellValue(sourceCell.getNumericCellValue());
-                            if (i == 6) { // Coluna G
-                                targetCell.setCellStyle(accountingStyle);
-                            } else {
-                                targetCell.setCellStyle(generalStyle);
-                            }
-                        }
-                        break;
-                    case BOOLEAN:
-                        targetCell.setCellValue(sourceCell.getBooleanCellValue());
-                        targetCell.setCellStyle(generalStyle);
-                        break;
-                    case FORMULA:
-                        try {
-                            switch (sourceCell.getCachedFormulaResultType()) {
-                                case STRING:
-                                    targetCell.setCellValue(sourceCell.getStringCellValue());
-                                    break;
-                                case NUMERIC:
-                                    if (DateUtil.isCellDateFormatted(sourceCell)) {
-                                        targetCell.setCellValue(sourceCell.getDateCellValue());
-                                    } else {
-                                        targetCell.setCellValue(sourceCell.getNumericCellValue());
-                                    }
-                                    break;
-                                case BOOLEAN:
-                                    targetCell.setCellValue(sourceCell.getBooleanCellValue());
-                                    break;
-                                default:
-                                    targetCell.setCellType(CellType.BLANK);
-                                    break;
-                            }
-                        } catch (Exception e) {
-                            targetCell.setCellType(CellType.BLANK);
-                        }
-                        targetCell.setCellStyle(generalStyle);
-                        break;
-                    case BLANK:
-                        targetCell.setCellType(CellType.BLANK);
-                        break;
-                    default:
-                        targetCell.setCellType(CellType.BLANK);
-                        break;
+    private void removerLinhasVazias(SXSSFWorkbook workbook) {
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+            SXSSFSheet sheet = (SXSSFSheet) workbook.getSheetAt(i);
+            for (int rowIndex = sheet.getLastRowNum(); rowIndex >= 0; rowIndex--) {
+                Row row = sheet.getRow(rowIndex);
+                if (row != null && (isRowEmpty(row))) {
+                    sheet.removeRow(row);
                 }
             }
         }
-
-        // Unifica as colunas Número e Destino em uma só
-        Cell numeroCell = targetRow.getCell(4); // Coluna E
-        Cell destinoCell = targetRow.getCell(5); // Coluna F
-
-        if (numeroCell != null && destinoCell != null) {
-            String numero = "";
-            if (numeroCell.getCellType() == CellType.STRING) {
-                numero = numeroCell.getStringCellValue();
-            } else if (numeroCell.getCellType() == CellType.NUMERIC) {
-                numero = String.valueOf(numeroCell.getNumericCellValue());
-            }
-
-            String destino = "";
-            if (destinoCell.getCellType() == CellType.STRING) {
-                destino = destinoCell.getStringCellValue();
-            } else if (destinoCell.getCellType() == CellType.NUMERIC) {
-                destino = String.valueOf(destinoCell.getNumericCellValue());
-            }
-
-            Cell numeroDestinoCell = targetRow.createCell(4);
-            numeroDestinoCell.setCellValue(numero + " " + destino);
-            numeroDestinoCell.setCellStyle(generalStyle);
-
-            // Remove as colunas separadas
-            targetRow.removeCell(destinoCell);
-        }
     }
 
-    private void exibirMensagemErro(String mensagem) {
-        JOptionPane.showMessageDialog(null, mensagem, "Erro", JOptionPane.ERROR_MESSAGE);
+    private boolean isRowEmpty(Row row) {
+        for (int i = 0; i <= 3; i++) { // Verifica as colunas A (0), B (1), C (2) e D (3)
+            Cell cell = row.getCell(i);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false; // Se qualquer célula dessas colunas tiver valor, a linha não está vazia
+            }
+        }
+        return true; // Todas as células nas colunas A, B, C e D estão vazias
     }
 }
