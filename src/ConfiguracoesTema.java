@@ -5,6 +5,8 @@ import com.formdev.flatlaf.intellijthemes.*;
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatAtomOneLightIJTheme;
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubDarkIJTheme;
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMaterialLighterIJTheme;
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMaterialOceanicIJTheme;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -194,7 +196,7 @@ public class ConfiguracoesTema {
         FLAT_INTELLIJ("FlatLaf IntelliJ (Light)", new FlatIntelliJLaf(), false),
         FLAT_LIGHT_LAF("Flat Light Laf", new FlatLightLaf(), false),
         FLAT_MATERIAL_LIGHTER("Flat Material Lighter", new FlatMaterialLighterIJTheme(), false),
-        FLAT_CYAN_LIGHT("Flat Cyan Light", new FlatCyanLightIJTheme(), false),
+        FLAT_MAC_LIGHT("Flat Mac Light", new FlatMacLightLaf(), false),
         FLAT_ATOM_ONE("Flat Atom One", new FlatAtomOneLightIJTheme(), false);
 
         private static final Map<String, Tema> NAME_TO_ENUM = new HashMap<>();
