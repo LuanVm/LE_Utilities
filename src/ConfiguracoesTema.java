@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public class ConfiguracoesTema {
 
     private static final String CONFIG_FILE = ".my-app-config/config.properties";
-    private static final String DEFAULT_THEME_NAME = "Flat Dark Orange";
+    private static final Tema DEFAULT_TEMA = Tema.FLAT_MAC_LIGHT; // Define o tema padrão
     private static final Logger LOGGER = Logger.getLogger(ConfiguracoesTema.class.getName());
 
     private JPanel panelConfiguracoes;
@@ -72,7 +72,7 @@ public class ConfiguracoesTema {
         for (Tema tema : Tema.values()) {
             if (tema.isDark() == isDark) {
                 JRadioButton radioButton = new JRadioButton(tema.getName());
-                if (tema == Tema.FLAT_DARK_ORANGE) {
+                if (tema == DEFAULT_TEMA) {
                     radioButton.setSelected(true); // Tema padrão inicial
                 }
                 radioButton.addActionListener(temaActionListener);
@@ -138,7 +138,7 @@ public class ConfiguracoesTema {
                 return Tema.fromName(button.getText());
             }
         }
-        return Tema.FLAT_DARK_ORANGE; // Default
+        return DEFAULT_TEMA; // Default
     }
 
     public static void loadConfig() {
@@ -153,7 +153,7 @@ public class ConfiguracoesTema {
             Properties prop = new Properties();
             prop.load(input);
 
-            String temaName = prop.getProperty("tema", DEFAULT_THEME_NAME);
+            String temaName = prop.getProperty("tema", DEFAULT_TEMA.getName());
             Tema tema = Tema.fromName(temaName);
 
             try {
@@ -175,7 +175,7 @@ public class ConfiguracoesTema {
         try {
             if (configFile.getParentFile() != null && configFile.getParentFile().mkdirs()) {
                 try (FileWriter writer = new FileWriter(configFile)) {
-                    writer.write("tema=" + DEFAULT_THEME_NAME);
+                    writer.write("tema=" + DEFAULT_TEMA.getName());
                 }
             }
         } catch (IOException e) {
@@ -193,10 +193,10 @@ public class ConfiguracoesTema {
         FLAT_DRACULA("Flat Dracula", new FlatDraculaIJTheme(), true),
 
         // Temas light
+        FLAT_MAC_LIGHT("Flat Mac Light (Padrão)", new FlatMacLightLaf(), false),
         FLAT_INTELLIJ("FlatLaf IntelliJ (Light)", new FlatIntelliJLaf(), false),
         FLAT_LIGHT_LAF("Flat Light Laf", new FlatLightLaf(), false),
         FLAT_MATERIAL_LIGHTER("Flat Material Lighter", new FlatMaterialLighterIJTheme(), false),
-        FLAT_MAC_LIGHT("Flat Mac Light", new FlatMacLightLaf(), false),
         FLAT_ATOM_ONE("Flat Atom One", new FlatAtomOneLightIJTheme(), false);
 
         private static final Map<String, Tema> NAME_TO_ENUM = new HashMap<>();
@@ -229,7 +229,7 @@ public class ConfiguracoesTema {
         }
 
         public static Tema fromName(String name) {
-            return NAME_TO_ENUM.getOrDefault(name, FLAT_DARK_ORANGE); // Default
+            return NAME_TO_ENUM.getOrDefault(name, DEFAULT_TEMA); // Default
         }
     }
 }

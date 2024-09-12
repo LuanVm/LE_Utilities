@@ -1,5 +1,7 @@
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -117,6 +119,19 @@ public class PainelProcessamentoAgitel {
         gbc.anchor = GridBagConstraints.EAST;
         checkboxEqualizar = new JCheckBox("Equalizar 'Região'");
         inputPanel.add(checkboxEqualizar, gbc);
+
+        // Adiciona a caixa de texto sobre a RAM
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 4;
+        JTextArea textAreaRAM = new JTextArea("Certifique-se de ter pelo menos 12 GB de RAM para processar o arquivo da Agitel.", 2, 60);
+        textAreaRAM.setEditable(false);
+        textAreaRAM.setBackground(inputPanel.getBackground()); // Mantém o fundo do painel
+        textAreaRAM.setWrapStyleWord(true);
+        textAreaRAM.setLineWrap(true);
+        textAreaRAM.setForeground(Color.GRAY);
+        textAreaRAM.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        inputPanel.add(textAreaRAM, gbc);
 
         // Configura os eventos de ação dos botões
         buttonSelecionar.addActionListener(e -> selecionarArquivo(textArquivo));
@@ -237,27 +252,58 @@ public class PainelProcessamentoAgitel {
     private void equalizarColunaRegiao(SXSSFWorkbook workbook) {
         for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
             SXSSFSheet sheet = workbook.getSheetAt(i);
-            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
-                Row row = sheet.getRow(rowIndex);
-                if (row != null) {
-                    Cell cell = row.getCell(COLUNA_REGIAO);
-                    if (cell != null && cell.getCellType() == CellType.STRING) {
-                        String value = cell.getStringCellValue().trim().toLowerCase();
+            System.out.println("Processando aba: " + sheet.getSheetName());
 
-                        // Se contém "fixo", substitui tudo após "fixo"
-                        if (value.contains("fixo")) {
-                            cell.setCellValue("Fixo");
-                        }
-                        // Se contém "movel", substitui tudo após "movel"
-                        else if (value.contains("movel")) {
-                            cell.setCellValue("Movel");
-                        }
+            int totalLinhas = sheet.getLastRowNum();
+            System.out.println("Total de linhas na aba: " + totalLinhas);
+
+            for (int rowIndex = 0; rowIndex <= totalLinhas; rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+
+                if (row == null) {
+                    continue; // Pula linhas vazias
+                }
+
+                // Tenta buscar a célula da coluna D (índice 3)
+                Cell cellRegiao = row.getCell(COLUNA_REGIAO); // Coluna D tem índice 3
+                if (cellRegiao == null) {
+                    continue; // Pula células vazias
+                }
+
+                String valorRegiao = "";
+                switch (cellRegiao.getCellType()) {
+                    case STRING:
+                        valorRegiao = cellRegiao.getStringCellValue().trim().toLowerCase();
+                        break;
+                    case NUMERIC:
+                        valorRegiao = String.valueOf((int) cellRegiao.getNumericCellValue()).toLowerCase();
+                        break;
+                    case BLANK:
+                        continue; // Pula células em branco
+                    default:
+                        continue; // Pula qualquer outro tipo de célula
+                }
+
+                if (valorRegiao.contains("fixo")) {
+                    cellRegiao.setCellValue("Fixo");
+                    System.out.println("Linha " + rowIndex + ": Valor ajustado para 'Fixo' na aba " + sheet.getSheetName());
+                } else if (valorRegiao.contains("movel")) {
+                    cellRegiao.setCellValue("Movel");
+                    System.out.println("Linha " + rowIndex + ": Valor ajustado para 'Movel' na aba " + sheet.getSheetName());
+                }
+
+                // Limpa as linhas periodicamente para liberar memória
+                if (rowIndex % 5000 == 0) {
+                    try {
+                        ((SXSSFSheet) sheet).flushRows(5000); // Mantém as últimas 5000 linhas em memória
+                        System.out.println("Flush realizado a cada 5000 linhas.");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
         }
     }
-
 
     private void iniciarWorker(File file) {
         worker = new SwingWorker<Void, String>() {
@@ -280,11 +326,14 @@ public class PainelProcessamentoAgitel {
                     processarAbas(workbook, outputWorkbook, outputSheet);
 
                     if (checkboxEqualizar.isSelected()) {
+                        System.out.println("Checkbox Equalizar está marcada. Iniciando equalização.");
                         equalizarColunaRegiao(outputWorkbook);
+                    } else {
+                        System.out.println("Checkbox Equalizar não está marcada. Pulando equalização.");
                     }
                     removerLinhasVazias(outputWorkbook);
                     salvarArquivo(outputWorkbook, outputFile);
-                    publish("Processamento finalizado com sucesso.");
+                    publish("Transcrição dos dados concluída.");
 
                     // Limpeza de memória
                     workbook.close();
@@ -303,12 +352,15 @@ public class PainelProcessamentoAgitel {
 
             @Override
             protected void process(List<String> chunks) {
-                chunks.forEach(message -> textAreaResultados.append(message + "\n"));
+                for (String message : chunks) {
+                    textAreaResultados.append(message + "\n");
+                }
             }
 
             @Override
             protected void done() {
                 finalizarProcessamento();
+                textAreaResultados.append("Processamento concluído.\n");
             }
 
             private void processarAbas(XSSFWorkbook workbook, SXSSFWorkbook outputWorkbook, SXSSFSheet outputSheet) throws Exception {
@@ -342,9 +394,8 @@ public class PainelProcessamentoAgitel {
                             aplicarEstilos(outputRow);
 
                             if (rowIndex % 5000 == 0) {
-                                outputSheet.flushRows(5000);
+                                outputSheet.flushRows(0);
                             }
-
                             rowIndex++;
                             linhasProcessadas++;
                         }
