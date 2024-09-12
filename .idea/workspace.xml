@@ -9,14 +9,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Update, ProcessamentoAgitel + check de tratamento">
+    <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Processamento OK (ORGANIZADO)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ConfiguracoesTema.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ConfiguracoesTema.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$2.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/utilities-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/utilities-1.0-SNAPSHOT.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -137,7 +136,8 @@
       <workItem from="1725965768768" duration="7758000" />
       <workItem from="1725976967948" duration="9139000" />
       <workItem from="1726000790888" duration="940000" />
-      <workItem from="1726053518181" duration="26995000" />
+      <workItem from="1726053518181" duration="27509000" />
+      <workItem from="1726139439787" duration="4550000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -243,7 +243,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725915224128</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Processamento OK (ORGANIZADO)">
+      <option name="closed" value="true" />
+      <created>1726087693229</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1726087693230</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -257,7 +265,8 @@
     <MESSAGE value="Update, ProcessamentoAgitel, 85%" />
     <MESSAGE value="Update, ProcessamentoAgitel OK" />
     <MESSAGE value="Update, ProcessamentoAgitel + check de tratamento" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update, ProcessamentoAgitel + check de tratamento" />
+    <MESSAGE value="Processamento OK (ORGANIZADO)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Processamento OK (ORGANIZADO)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

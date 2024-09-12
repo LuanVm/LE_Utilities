@@ -15,8 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
@@ -244,9 +243,13 @@ public class PainelProcessamentoAgitel {
                     Cell cell = row.getCell(COLUNA_REGIAO);
                     if (cell != null && cell.getCellType() == CellType.STRING) {
                         String value = cell.getStringCellValue().trim().toLowerCase();
-                        if (value.contains("Fixo")) {
+
+                        // Se contém "fixo", substitui tudo após "fixo"
+                        if (value.contains("fixo")) {
                             cell.setCellValue("Fixo");
-                        } else if (value.contains("Movel")) {
+                        }
+                        // Se contém "movel", substitui tudo após "movel"
+                        else if (value.contains("movel")) {
                             cell.setCellValue("Movel");
                         }
                     }
@@ -254,6 +257,7 @@ public class PainelProcessamentoAgitel {
             }
         }
     }
+
 
     private void iniciarWorker(File file) {
         worker = new SwingWorker<Void, String>() {
@@ -311,6 +315,7 @@ public class PainelProcessamentoAgitel {
                 int rowIndex = 0;
                 int linhasProcessadas = 0;
 
+                totalSheets = workbook.getNumberOfSheets();
                 criarCabecalho(outputSheet);
                 rowIndex++;
 
@@ -318,6 +323,7 @@ public class PainelProcessamentoAgitel {
                     XSSFSheet sheet = workbook.getSheetAt(i);
                     publish("Processando aba: " + sheet.getSheetName() + " (" + sheet.getLastRowNum() + " linhas)");
 
+                    atualizarProgresso(i);
                     Row header = findHeaderRow(sheet);
                     if (header == null) continue;
 
@@ -341,7 +347,6 @@ public class PainelProcessamentoAgitel {
 
                             rowIndex++;
                             linhasProcessadas++;
-                            atualizarProgresso(linhasProcessadas);
                         }
                     }
                 }
@@ -391,13 +396,10 @@ public class PainelProcessamentoAgitel {
                 return sheet.getLastRowNum() + 1;
             }
 
-            private void atualizarProgresso(int linhasProcessadas) {
-                if (totalLinhas > 0) {
-                    int progress = (int) (((double) linhasProcessadas / totalLinhas) * 100);
-                    setProgress(progress); // Atualiza o progresso do SwingWorker
-                } else {
-                    setProgress(100); // Se totalLinhas é 0, define como 100%
-                }
+            private void atualizarProgresso(int abasProcessadas) {
+                int progressoPercentual = (abasProcessadas * 100) / totalSheets;
+                progressBar.setValue(progressoPercentual);
+                progressBar.setString("Processando... " + progressoPercentual + "%");
             }
         };
 

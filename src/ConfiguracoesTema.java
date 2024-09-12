@@ -1,6 +1,11 @@
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.intellijthemes.*;
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatAtomOneLightIJTheme;
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubDarkIJTheme;
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMaterialLighterIJTheme;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -19,10 +24,9 @@ public class ConfiguracoesTema {
 
     private JPanel panelConfiguracoes;
     private ButtonGroup temaButtonGroup;
-    private JTextPane infoLabel;
 
     public ConfiguracoesTema() {
-        panelConfiguracoes = new JPanel(new BorderLayout());
+        panelConfiguracoes = new JPanel(new BorderLayout(10, 10));
         panelConfiguracoes.setBorder(new EmptyBorder(20, 20, 20, 20));
         configurarPainelConfiguracoes();
     }
@@ -32,52 +36,79 @@ public class ConfiguracoesTema {
     }
 
     private void configurarPainelConfiguracoes() {
-        JPanel temaPanel = new JPanel(new GridLayout(0, 2, 10, 10));
-        temaPanel.setBorder(new TitledBorder("Tema da Interface"));
+        JPanel temaDarkPanel = criarPainelDeTemas("Temas Escuros", true);
+        JPanel temaLightPanel = criarPainelDeTemas("Temas Claros", false);
 
-        temaButtonGroup = new ButtonGroup();
-        ActionListener temaActionListener = e -> {
-            JRadioButton source = (JRadioButton) e.getSource();
-            if (source.isSelected()) {
-                Tema temaSelecionado = Tema.fromName(source.getText());
-                atualizarTema(temaSelecionado.getLookAndFeel());
-            }
-        };
+        // Painel principal contendo os temas e o botão salvar
+        JPanel panelCentro = new JPanel(new GridLayout(1, 2, 10, 10));
+        panelCentro.add(temaDarkPanel);
+        panelCentro.add(temaLightPanel);
 
-        for (Tema tema : Tema.values()) {
-            createRadioButton(tema.getName(), tema == Tema.FLAT_DARK_ORANGE, temaButtonGroup, temaPanel, temaActionListener);
-        }
+        panelConfiguracoes.add(new JLabel("Selecione o tema:"), BorderLayout.NORTH);
+        panelConfiguracoes.add(panelCentro, BorderLayout.CENTER);
 
         JButton buttonSalvar = new JButton("Salvar");
         buttonSalvar.addActionListener(e -> saveConfig());
-        temaPanel.add(buttonSalvar);
-
-        panelConfiguracoes.add(temaPanel, BorderLayout.NORTH);
+        panelConfiguracoes.add(buttonSalvar, BorderLayout.SOUTH);
     }
 
-    private JRadioButton createRadioButton(String text, boolean selected, ButtonGroup group, JPanel panel, ActionListener listener) {
-        JRadioButton radioButton = new JRadioButton(text, selected);
-        group.add(radioButton);
-        panel.add(radioButton);
-        radioButton.addActionListener(listener);
-        return radioButton;
+    private JPanel criarPainelDeTemas(String titulo, boolean isDark) {
+        JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
+        panel.setBorder(new TitledBorder(titulo));
+
+        if (temaButtonGroup == null) {
+            temaButtonGroup = new ButtonGroup(); // Garantir que há apenas um grupo de botões para todos os temas
+        }
+
+        ActionListener temaActionListener = e -> {
+            JRadioButton source = (JRadioButton) e.getSource();
+            Tema temaSelecionado = Tema.fromName(source.getText());
+            atualizarTema(temaSelecionado.getLookAndFeel());
+        };
+
+        // Adiciona os temas ao painel
+        for (Tema tema : Tema.values()) {
+            if (tema.isDark() == isDark) {
+                JRadioButton radioButton = new JRadioButton(tema.getName());
+                if (tema == Tema.FLAT_DARK_ORANGE) {
+                    radioButton.setSelected(true); // Tema padrão inicial
+                }
+                radioButton.addActionListener(temaActionListener);
+                temaButtonGroup.add(radioButton); // Adiciona ao grupo global
+                panel.add(radioButton);
+            }
+        }
+
+        return panel;
     }
 
     private void atualizarTema(LookAndFeel lookAndFeel) {
         SwingUtilities.invokeLater(() -> {
             try {
-                UIManager.setLookAndFeel(lookAndFeel);
-                FlatLaf.updateUI();
-                SwingUtilities.updateComponentTreeUI(panelConfiguracoes);
-                for (Window window : Window.getWindows()) {
-                    SwingUtilities.updateComponentTreeUI(window);
+                LookAndFeel currentLookAndFeel = UIManager.getLookAndFeel();
+                String newThemeName = lookAndFeel.getClass().getName();
+
+                if (currentLookAndFeel == null || !newThemeName.equals(currentLookAndFeel.getClass().getName())) {
+                    LOGGER.info("Aplicando tema: " + newThemeName);
+
+                    // Aplicar o novo LookAndFeel diretamente
+                    UIManager.setLookAndFeel(lookAndFeel);
+                    FlatLaf.updateUI();
+
+                    // Força a atualização de todos os componentes e janelas
+                    for (Window window : Window.getWindows()) {
+                        SwingUtilities.updateComponentTreeUI(window);
+                    }
+
+                    // Atualiza o painel de configurações
+                    panelConfiguracoes.revalidate();
+                    panelConfiguracoes.repaint();
                 }
             } catch (UnsupportedLookAndFeelException e) {
-                LOGGER.log(Level.SEVERE, "Erro ao definir o tema", e);
+                LOGGER.log(Level.SEVERE, "Erro ao definir o tema: " + lookAndFeel.getClass().getName(), e);
             }
         });
     }
-
 
     private void saveConfig() {
         File configFile = new File(System.getProperty("user.home"), CONFIG_FILE);
@@ -125,6 +156,10 @@ public class ConfiguracoesTema {
 
             try {
                 UIManager.setLookAndFeel(tema.getLookAndFeel());
+                FlatLaf.updateUI();
+                for (Window window : Window.getWindows()) {
+                    SwingUtilities.updateComponentTreeUI(window);
+                }
             } catch (UnsupportedLookAndFeelException ex) {
                 LOGGER.log(Level.SEVERE, "Erro ao carregar o tema", ex);
             }
@@ -147,18 +182,23 @@ public class ConfiguracoesTema {
     }
 
     enum Tema {
-        FLAT_DARK_ORANGE("Flat Dark Orange", new FlatArcDarkOrangeIJTheme()),
-        FLAT_DARK_PURPLE("Flat Dark Purple", new FlatDarkPurpleIJTheme()),
-        FLAT_INTELLIJ("FlatLaf IntelliJ (Light)", new FlatIntelliJLaf()),
-        FLAT_CARBON("Flat Carbon", new FlatCarbonIJTheme()),
-        FLAT_MONOKAI_PRO("Flat Monokai Pro", new FlatMonokaiProIJTheme()),
-        FLAT_GRUVBOX("Flat Gruvbox Dark Hard", new FlatGruvboxDarkHardIJTheme()),
-        FLAT_HIDPI("Flat Hiberbee Dark", new FlatHiberbeeDarkIJTheme());
+        FLAT_DARK_ORANGE("Flat Dark Orange", new FlatArcDarkOrangeIJTheme(), true),
+        FLAT_DARK_PURPLE("Flat Dark Purple", new FlatDarkPurpleIJTheme(), true),
+        FLAT_CARBON("Flat Carbon", new FlatCarbonIJTheme(), true),
+        FLAT_GITHUB_DARK("Flat GitHub Dark", new FlatGitHubDarkIJTheme(), true),
+        FLAT_ONE_DARK("Flat One Dark", new FlatOneDarkIJTheme(), true),
+        FLAT_SOLARIZED_DARK("Flat Solarized Dark", new FlatSolarizedDarkIJTheme(), true),
+        FLAT_DRACULA("Flat Dracula", new FlatDraculaIJTheme(), true),
 
-        private static final Map<String, Tema> NAME_TO_ENUM;
+        // Temas light
+        FLAT_INTELLIJ("FlatLaf IntelliJ (Light)", new FlatIntelliJLaf(), false),
+        FLAT_LIGHT_LAF("Flat Light Laf", new FlatLightLaf(), false),
+        FLAT_MATERIAL_LIGHTER("Flat Material Lighter", new FlatMaterialLighterIJTheme(), false),
+        FLAT_CYAN_LIGHT("Flat Cyan Light", new FlatCyanLightIJTheme(), false),
+        FLAT_ATOM_ONE("Flat Atom One", new FlatAtomOneLightIJTheme(), false);
 
+        private static final Map<String, Tema> NAME_TO_ENUM = new HashMap<>();
         static {
-            NAME_TO_ENUM = new HashMap<>();
             for (Tema tema : values()) {
                 NAME_TO_ENUM.put(tema.name, tema);
             }
@@ -166,10 +206,12 @@ public class ConfiguracoesTema {
 
         private final String name;
         private final LookAndFeel lookAndFeel;
+        private final boolean isDark;
 
-        Tema(String name, LookAndFeel lookAndFeel) {
+        Tema(String name, LookAndFeel lookAndFeel, boolean isDark) {
             this.name = name;
             this.lookAndFeel = lookAndFeel;
+            this.isDark = isDark;
         }
 
         public String getName() {
@@ -178,6 +220,10 @@ public class ConfiguracoesTema {
 
         public LookAndFeel getLookAndFeel() {
             return lookAndFeel;
+        }
+
+        public boolean isDark() {
+            return isDark;
         }
 
         public static Tema fromName(String name) {
