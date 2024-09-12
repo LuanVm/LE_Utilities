@@ -250,56 +250,33 @@ public class PainelProcessamentoAgitel {
     }
 
     private void equalizarColunaRegiao(SXSSFWorkbook workbook) {
-        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-            SXSSFSheet sheet = workbook.getSheetAt(i);
-            System.out.println("Processando aba: " + sheet.getSheetName());
+        SXSSFSheet sheet = workbook.getSheetAt(0);
+        System.out.println("Processando aba: " + sheet.getSheetName());
 
-            int totalLinhas = sheet.getLastRowNum();
-            System.out.println("Total de linhas na aba: " + totalLinhas);
+        for (Row row : sheet) {
+            if (row.getRowNum() < 1) continue;
 
-            for (int rowIndex = 0; rowIndex <= totalLinhas; rowIndex++) {
-                Row row = sheet.getRow(rowIndex);
+            Cell cellRegiao = row.getCell(COLUNA_REGIAO);
+            if (cellRegiao == null) {
+                cellRegiao = row.createCell(COLUNA_REGIAO);
+                cellRegiao.setCellValue("Intragrupo");
+                continue;
+            }
 
-                if (row == null) {
-                    continue; // Pula linhas vazias
-                }
-
-                // Tenta buscar a célula da coluna D (índice 3)
-                Cell cellRegiao = row.getCell(COLUNA_REGIAO); // Coluna D tem índice 3
-                if (cellRegiao == null) {
-                    continue; // Pula células vazias
-                }
-
-                String valorRegiao = "";
-                switch (cellRegiao.getCellType()) {
-                    case STRING:
-                        valorRegiao = cellRegiao.getStringCellValue().trim().toLowerCase();
-                        break;
-                    case NUMERIC:
-                        valorRegiao = String.valueOf((int) cellRegiao.getNumericCellValue()).toLowerCase();
-                        break;
-                    case BLANK:
-                        continue; // Pula células em branco
-                    default:
-                        continue; // Pula qualquer outro tipo de célula
-                }
-
-                if (valorRegiao.contains("fixo")) {
+            String valorRegiao = cellRegiao.getStringCellValue().trim().toLowerCase();
+            if (valorRegiao.contains("fixo")) {
+                cellRegiao.setCellValue("Fixo");
+            } else if (valorRegiao.contains("movel")) {
+                cellRegiao.setCellValue("Movel");
+            } else if (valorRegiao.isBlank()) {
+                cellRegiao.setCellValue("Intragrupo");
+            } else {
+                if (valorRegiao.startsWith("fixo")) {
                     cellRegiao.setCellValue("Fixo");
-                    System.out.println("Linha " + rowIndex + ": Valor ajustado para 'Fixo' na aba " + sheet.getSheetName());
-                } else if (valorRegiao.contains("movel")) {
+                } else if (valorRegiao.startsWith("movel")) {
                     cellRegiao.setCellValue("Movel");
-                    System.out.println("Linha " + rowIndex + ": Valor ajustado para 'Movel' na aba " + sheet.getSheetName());
-                }
-
-                // Limpa as linhas periodicamente para liberar memória
-                if (rowIndex % 5000 == 0) {
-                    try {
-                        ((SXSSFSheet) sheet).flushRows(5000); // Mantém as últimas 5000 linhas em memória
-                        System.out.println("Flush realizado a cada 5000 linhas.");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                } else {
+                    cellRegiao.setCellValue("Intragrupo");
                 }
             }
         }
@@ -327,6 +304,14 @@ public class PainelProcessamentoAgitel {
 
                     if (checkboxEqualizar.isSelected()) {
                         System.out.println("Checkbox Equalizar está marcada. Iniciando equalização.");
+
+                        // Execute flushRows uma vez, antes da equalização
+                        try {
+                            outputSheet.flushRows(0);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                         equalizarColunaRegiao(outputWorkbook);
                     } else {
                         System.out.println("Checkbox Equalizar não está marcada. Pulando equalização.");
@@ -345,7 +330,7 @@ public class PainelProcessamentoAgitel {
                     if (outputWorkbook != null) {
                         outputWorkbook.dispose();
                     }
-                    System.gc(); // Sugere ao sistema para realizar a coleta de lixo
+                    System.gc();
                 }
                 return null;
             }
@@ -393,9 +378,8 @@ public class PainelProcessamentoAgitel {
                             copyRow(row, outputRow);
                             aplicarEstilos(outputRow);
 
-                            if (rowIndex % 5000 == 0) {
-                                outputSheet.flushRows(0);
-                            }
+                            // Removido flushRows daqui
+
                             rowIndex++;
                             linhasProcessadas++;
                         }
@@ -408,6 +392,20 @@ public class PainelProcessamentoAgitel {
                         copiarDadosParaPrimeiraAba(outputWorkbook, segundaSheet, outputSheet);
                     }
                     outputWorkbook.removeSheetAt(1);
+                }
+
+                // Execute flushRows uma vez, antes da equalização
+                try {
+                    outputSheet.flushRows(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (checkboxEqualizar.isSelected()) {
+                    System.out.println("Checkbox Equalizar está marcada. Iniciando equalização.");
+                    equalizarColunaRegiao(outputWorkbook);
+                } else {
+                    System.out.println("Checkbox Equalizar não está marcada. Pulando equalização.");
                 }
             }
 
