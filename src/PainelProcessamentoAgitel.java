@@ -47,7 +47,8 @@ public class PainelProcessamentoAgitel {
     private static final int COLUNA_REGIAO = 3;
     private static final int COLUNA_NUMERO_DESTINO = 4;
     private static final int COLUNA_DURACAO = 5;
-    private static final int COLUNA_VALOR = 6;
+    private static final int COLUNA_DURACAO_MINUTOS = 6;
+    private static final int COLUNA_VALOR = 7;
 
     public PainelProcessamentoAgitel(JTextArea textAreaResultados) {
         this.textAreaResultados = textAreaResultados;
@@ -228,7 +229,7 @@ public class PainelProcessamentoAgitel {
 
     private Row criarCabecalho(SXSSFSheet outputSheet) {
         Row headerRow = outputSheet.createRow(0);
-        String[] columnNames = {"Horário", "Setor", "Identificador", "Região", "Número_Destino", "Duração", "Valor"};
+        String[] columnNames = {"Horário", "Setor", "Identificador", "Região", "Número_Destino", "Duração", "Duração (minutos)","Valor"};
 
         for (int i = 0; i < columnNames.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -485,13 +486,56 @@ public class PainelProcessamentoAgitel {
     }
 
     private void copyRow(Row sourceRow, Row outputRow) {
-        for (int i = 0; i < sourceRow.getLastCellNum(); i++) {
+        for (int i = 0; i <= COLUNA_DURACAO; i++) {
             Cell sourceCell = sourceRow.getCell(i);
             if (sourceCell != null) {
                 Cell newCell = outputRow.createCell(i);
                 copiarConteudoECelula(sourceCell, newCell);
             }
         }
+
+        // Calcula e adiciona a duração em minutos na coluna correta
+        Cell sourceCellDuracao = sourceRow.getCell(COLUNA_DURACAO);
+        if (sourceCellDuracao != null) {
+            try {
+                if (sourceCellDuracao.getCellType() == CellType.STRING) {
+                    String duracaoStr = sourceCellDuracao.getStringCellValue();
+                    double duracaoMinutos = converterDuracaoParaMinutos(duracaoStr);
+
+                    Cell newCellDuracaoMinutos = outputRow.createCell(COLUNA_DURACAO_MINUTOS);
+                    newCellDuracaoMinutos.setCellValue(duracaoMinutos);
+                    newCellDuracaoMinutos.setCellStyle(generalStyle);
+                } else if (sourceCellDuracao.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(sourceCellDuracao)) {
+                    Date data = sourceCellDuracao.getDateCellValue();
+                    double duracaoMinutos = data.getHours() * 60 + data.getMinutes() + data.getSeconds() / 60.0;
+
+                    Cell newCellDuracaoMinutos = outputRow.createCell(COLUNA_DURACAO_MINUTOS);
+                    newCellDuracaoMinutos.setCellValue(duracaoMinutos);
+                    newCellDuracaoMinutos.setCellStyle(generalStyle);
+                }
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                System.err.println("Erro ao converter duração: " + e.getMessage());
+                Cell newCellDuracaoMinutos = outputRow.createCell(COLUNA_DURACAO_MINUTOS);
+                newCellDuracaoMinutos.setCellValue("Erro na conversão");
+                newCellDuracaoMinutos.setCellStyle(generalStyle);
+            }
+        }
+
+        // Copia a coluna Valor
+        Cell sourceCellValor = sourceRow.getCell(COLUNA_VALOR - 1); // Índice original da coluna Valor
+        if (sourceCellValor != null) {
+            Cell newCellValor = outputRow.createCell(COLUNA_VALOR);
+            copiarConteudoECelula(sourceCellValor, newCellValor);
+        }
+    }
+
+    private double converterDuracaoParaMinutos(String duracaoStr) {
+        String[] partes = duracaoStr.split(":");
+        int horas = Integer.parseInt(partes[0]);
+        int minutos = Integer.parseInt(partes[1]);
+        int segundos = Integer.parseInt(partes[2]);
+
+        return horas * 60 + minutos + segundos / 60.0;
     }
 
     private void copiarConteudoECelula(Cell sourceCell, Cell newCell) {

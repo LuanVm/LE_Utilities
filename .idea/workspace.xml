@@ -9,7 +9,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Processamento OK (Falta apenas Col_Região)">
+    <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Processamento AGITEL FINALIZADO!&#10;&#10;Coluna Região OK!">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelProcessamentoAgitel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelProcessamentoAgitel$1.class" afterDir="false" />
@@ -138,7 +138,8 @@
       <workItem from="1726053518181" duration="27509000" />
       <workItem from="1726139439787" duration="4589000" />
       <workItem from="1726144572638" duration="14455000" />
-      <workItem from="1726224374215" duration="7215000" />
+      <workItem from="1726224374215" duration="8106000" />
+      <workItem from="1726233101212" duration="2094000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -276,7 +277,15 @@
       <option name="project" value="LOCAL" />
       <updated>1726166929185</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Processamento AGITEL FINALIZADO!&#10;&#10;Coluna Região OK!">
+      <option name="closed" value="true" />
+      <created>1726232432320</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1726232432320</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -292,7 +301,8 @@
     <MESSAGE value="Update, ProcessamentoAgitel + check de tratamento" />
     <MESSAGE value="Processamento OK (ORGANIZADO)" />
     <MESSAGE value="Processamento OK (Falta apenas Col_Região)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Processamento OK (Falta apenas Col_Região)" />
+    <MESSAGE value="Processamento AGITEL FINALIZADO!&#10;&#10;Coluna Região OK!" />
+    <option name="LAST_COMMIT_MESSAGE" value="Processamento AGITEL FINALIZADO!&#10;&#10;Coluna Região OK!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
