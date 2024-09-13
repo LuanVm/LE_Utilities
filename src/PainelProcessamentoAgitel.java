@@ -35,7 +35,7 @@ public class PainelProcessamentoAgitel {
     private int totalSheets;
     private int totalLinhas;
 
-    // Cache de estilos para células
+    // Cache de estilos para celulas
     private CellStyle generalStyle;
     private CellStyle dateStyle;
     private CellStyle accountingStyle;
@@ -55,7 +55,7 @@ public class PainelProcessamentoAgitel {
         this.progressBar = new JProgressBar();
     }
 
-    // Método para criar o painel principal
+    // Metodo para criar o painel principal
     public JPanel criarPainel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -68,7 +68,7 @@ public class PainelProcessamentoAgitel {
         return panel;
     }
 
-    // Método para criar o painel de input
+    // Metodo para criar o painel de input
     private JPanel criarPainelInput() {
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(new TitledBorder(
@@ -91,7 +91,7 @@ public class PainelProcessamentoAgitel {
         return inputPanel;
     }
 
-    // Método para adicionar os componentes ao painel de input
+    // Metodo para adicionar os componentes ao painel de input
     private void adicionarComponentesPainelInput(JPanel inputPanel, GridBagConstraints gbc) {
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -126,7 +126,7 @@ public class PainelProcessamentoAgitel {
         gbc.gridwidth = 4;
         JTextArea textAreaRAM = new JTextArea("Certifique-se de ter pelo menos 12 GB de RAM para processar o arquivo da Agitel.", 2, 60);
         textAreaRAM.setEditable(false);
-        textAreaRAM.setBackground(inputPanel.getBackground()); // Mantém o fundo do painel
+        textAreaRAM.setBackground(inputPanel.getBackground()); // Mantem o fundo do painel
         textAreaRAM.setWrapStyleWord(true);
         textAreaRAM.setLineWrap(true);
         textAreaRAM.setForeground(Color.GRAY);
@@ -138,7 +138,7 @@ public class PainelProcessamentoAgitel {
         buttonProcessar.addActionListener(e -> processarArquivo(textArquivo.getText()));
     }
 
-    // Método para criar o JScrollPane que contém a área de texto de resultados
+    // Metodo para criar o JScrollPane que contem a área de texto de resultados
     private JScrollPane criarScrollPaneResultados() {
         textAreaResultados = new JTextArea(20, 60);
         textAreaResultados.setEditable(false);
@@ -170,7 +170,7 @@ public class PainelProcessamentoAgitel {
     private void processarArquivo(String filePath) {
         File file = new File(filePath);
 
-        // Validação do arquivo: se não existe ou é um diretório
+        // Validação do arquivo: se não existe ou e um diretório
         if (!file.exists() || file.isDirectory()) {
             exibirMensagemErro("Arquivo inválido.");
             return;
@@ -196,7 +196,7 @@ public class PainelProcessamentoAgitel {
         progressBar.setString("Processamento concluído!");
 
         try {
-            worker.get(); // Aguarda o término do SwingWorker
+            worker.get(); // Aguarda o termino do SwingWorker
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             exibirMensagemErro("Erro durante o processamento.");
@@ -249,45 +249,13 @@ public class PainelProcessamentoAgitel {
         accountingStyle.setDataFormat(workbook.createDataFormat().getFormat("R$ 0.00"));
     }
 
-    private void equalizarColunaRegiao(SXSSFWorkbook workbook) {
-        SXSSFSheet sheet = workbook.getSheetAt(0);
-        System.out.println("Processando aba: " + sheet.getSheetName());
-
-        for (Row row : sheet) {
-            if (row.getRowNum() < 1) continue;
-
-            Cell cellRegiao = row.getCell(COLUNA_REGIAO);
-            if (cellRegiao == null) {
-                cellRegiao = row.createCell(COLUNA_REGIAO);
-                cellRegiao.setCellValue("Intragrupo");
-                continue;
-            }
-
-            String valorRegiao = cellRegiao.getStringCellValue().trim().toLowerCase();
-            if (valorRegiao.contains("fixo")) {
-                cellRegiao.setCellValue("Fixo");
-            } else if (valorRegiao.contains("movel")) {
-                cellRegiao.setCellValue("Movel");
-            } else if (valorRegiao.isBlank()) {
-                cellRegiao.setCellValue("Intragrupo");
-            } else {
-                if (valorRegiao.startsWith("fixo")) {
-                    cellRegiao.setCellValue("Fixo");
-                } else if (valorRegiao.startsWith("movel")) {
-                    cellRegiao.setCellValue("Movel");
-                } else {
-                    cellRegiao.setCellValue("Intragrupo");
-                }
-            }
-        }
-    }
-
     private void iniciarWorker(File file) {
         worker = new SwingWorker<Void, String>() {
             @Override
             protected Void doInBackground() throws Exception {
                 FileInputStream fis = null;
                 SXSSFWorkbook outputWorkbook = null;
+                XSSFWorkbook workbookLeitura = null; // Workbook para leitura após a criação do arquivo
 
                 try {
                     fis = new FileInputStream(file);
@@ -299,36 +267,40 @@ public class PainelProcessamentoAgitel {
                     configurarEstilos(outputWorkbook);
                     SXSSFSheet outputSheet = outputWorkbook.createSheet("Dados Copiados");
                     criarCabecalho(outputSheet);
+                    processarAbas(workbook, outputWorkbook, outputSheet, outputFile);
 
-                    processarAbas(workbook, outputWorkbook, outputSheet);
+                    removerLinhasVazias(outputWorkbook);
+                    salvarArquivo(outputWorkbook, outputFile);
 
                     if (checkboxEqualizar.isSelected()) {
-                        System.out.println("Checkbox Equalizar está marcada. Iniciando equalização.");
+                        publish("Equalizando nomes, aguarde...");
 
-                        // Execute flushRows uma vez, antes da equalização
-                        try {
-                            outputSheet.flushRows(0);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        try (FileInputStream inputStream = new FileInputStream(outputFile)) {
+                            workbookLeitura = new XSSFWorkbook(inputStream);
+                            equalizarColunaRegiao(workbookLeitura);
+
+                            // Salva as alterações no arquivo
+                            try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+                                workbookLeitura.write(outputStream);
+                            }
+                            // Fecha o inputStream após salvar as alterações
+                            inputStream.close();
                         }
 
-                        equalizarColunaRegiao(outputWorkbook);
+                        publish("Equalização concluída.");
                     } else {
                         System.out.println("Checkbox Equalizar não está marcada. Pulando equalização.");
                     }
-                    removerLinhasVazias(outputWorkbook);
-                    salvarArquivo(outputWorkbook, outputFile);
-                    publish("Transcrição dos dados concluída.");
 
-                    // Limpeza de memória
-                    workbook.close();
-                    outputWorkbook.dispose();
                 } finally {
                     if (fis != null) {
                         fis.close();
                     }
                     if (outputWorkbook != null) {
                         outputWorkbook.dispose();
+                    }
+                    if (workbookLeitura != null) {
+                        workbookLeitura.close();
                     }
                     System.gc();
                 }
@@ -348,13 +320,15 @@ public class PainelProcessamentoAgitel {
                 textAreaResultados.append("Processamento concluído.\n");
             }
 
-            private void processarAbas(XSSFWorkbook workbook, SXSSFWorkbook outputWorkbook, SXSSFSheet outputSheet) throws Exception {
+            private void processarAbas(XSSFWorkbook workbook, SXSSFWorkbook outputWorkbook, SXSSFSheet outputSheet, File outputFile) throws Exception {
                 int rowIndex = 0;
                 int linhasProcessadas = 0;
 
                 totalSheets = workbook.getNumberOfSheets();
                 criarCabecalho(outputSheet);
                 rowIndex++;
+
+                DataFormatter formatter = new DataFormatter(); // Declare formatter here
 
                 for (int i = 1; i < workbook.getNumberOfSheets(); i++) {
                     XSSFSheet sheet = workbook.getSheetAt(i);
@@ -378,7 +352,14 @@ public class PainelProcessamentoAgitel {
                             copyRow(row, outputRow);
                             aplicarEstilos(outputRow);
 
-                            // Removido flushRows daqui
+                            // Equalização da coluna 'Região'
+                            if (checkboxEqualizar.isSelected()) {
+                                Cell cellRegiao = outputRow.getCell(COLUNA_REGIAO);
+                                if (cellRegiao != null) {
+                                    String valorRegiao = formatter.formatCellValue(cellRegiao).trim();
+                                    cellRegiao.setCellValue(equalizar_valor(valorRegiao));
+                                }
+                            }
 
                             rowIndex++;
                             linhasProcessadas++;
@@ -394,18 +375,59 @@ public class PainelProcessamentoAgitel {
                     outputWorkbook.removeSheetAt(1);
                 }
 
-                // Execute flushRows uma vez, antes da equalização
-                try {
-                    outputSheet.flushRows(0);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                removerLinhasVazias(outputWorkbook);
+                salvarArquivo(outputWorkbook, outputFile);
+                publish("Transcrição dos dados concluída.");
+            }
 
-                if (checkboxEqualizar.isSelected()) {
-                    System.out.println("Checkbox Equalizar está marcada. Iniciando equalização.");
-                    equalizarColunaRegiao(outputWorkbook);
+            private String equalizar_valor(String valor) {
+                valor = valor.toLowerCase();
+                if (valor.contains("fixo")) {
+                    return "Fixo";
+                } else if (valor.contains("movel")) {
+                    return "Movel";
+                } else if (valor.isBlank()) {
+                    return "Intragrupo";
                 } else {
-                    System.out.println("Checkbox Equalizar não está marcada. Pulando equalização.");
+                    return valor;
+                }
+            }
+
+            private void equalizarColunaRegiao(XSSFWorkbook workbook) {
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                System.out.println("Iniciando equalização da coluna 'Região'.");
+
+                int lastRowNum = sheet.getLastRowNum();
+
+                for (int rowIndex = 1; rowIndex <= lastRowNum; rowIndex++) {
+                    Row row = sheet.getRow(rowIndex);
+                    if (row == null) continue;
+
+                    Cell cellRegiao = row.getCell(COLUNA_REGIAO);
+                    if (cellRegiao == null) {
+                        cellRegiao = row.createCell(COLUNA_REGIAO);
+                    }
+
+                    String valorRegiao = "";
+
+                    DataFormatter formatter = new DataFormatter();
+                    valorRegiao = formatter.formatCellValue(cellRegiao).trim().toLowerCase();
+
+                    if (valorRegiao.contains("fixo")) {
+                        cellRegiao.setCellValue("Fixo");
+                    } else if (valorRegiao.contains("movel")) {
+                        cellRegiao.setCellValue("Movel");
+                    } else if (valorRegiao.isBlank()) {
+                        cellRegiao.setCellValue("Intragrupo");
+                    } else {
+                        // Mantém o valor original se não for "fixo", "movel" ou vazio
+                        cellRegiao.setCellValue(valorRegiao);
+                    }
+
+                    if (rowIndex % 1000 == 0) {
+                        int progressoPercentual = (rowIndex * 100) / lastRowNum;
+                        publish("Equalizando... " + progressoPercentual + "%");
+                    }
                 }
             }
 
@@ -528,9 +550,9 @@ public class PainelProcessamentoAgitel {
         for (int i = 0; i <= 3; i++) { // Verifica as colunas A (0), B (1), C (2) e D (3)
             Cell cell = row.getCell(i);
             if (cell != null && cell.getCellType() != CellType.BLANK) {
-                return false; // Se qualquer célula dessas colunas tiver valor, a linha não está vazia
+                return false; // Se qualquer celula dessas colunas tiver valor, a linha não está vazia
             }
         }
-        return true; // Todas as células nas colunas A, B, C e D estão vazias
+        return true; // Todas as celulas nas colunas A, B, C e D estão vazias
     }
 }
