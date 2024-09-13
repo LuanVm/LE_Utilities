@@ -33,7 +33,7 @@ class PainelMesclaPlanilha {
     private JLabel labelStatusProcessamento;
 
     public PainelMesclaPlanilha(JTextArea textAreaArquivos) {
-        this.textAreaArquivos = textAreaArquivos;
+        this.textAreaArquivos = textAreaArquivos;this.textNovoNome = new JTextField(20);
     }
 
     public JPanel criarPainel() {
@@ -76,15 +76,15 @@ class PainelMesclaPlanilha {
         buttonSelecionar.setToolTipText("Clique para selecionar a pasta que deseja organizar");
         inputPanel.add(buttonSelecionar, gbc);
 
-        // Campo Nome do Arquivo
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        inputPanel.add(new JLabel("Nome do arquivo:"), gbc);
-
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        textNovoNome = new JTextField(20);
-        inputPanel.add(textNovoNome, gbc);
+//        // Campo Nome do Arquivo
+//        gbc.gridx = 0;
+//        gbc.gridy = 1;
+//        inputPanel.add(new JLabel("Nome do arquivo:"), gbc);
+//
+//        gbc.gridx = 1;
+//        gbc.gridwidth = 2;
+//        textNovoNome = new JTextField(20);
+//        inputPanel.add(textNovoNome, gbc);
 
         // Campo Arquivo Base
         gbc.gridx = 0;
@@ -197,6 +197,11 @@ class PainelMesclaPlanilha {
         private File[] files;
         private File directory;
         private String novoNomeBase;
+        private JTextField textNovoNome;
+
+        public MesclarArquivosWorker(JTextField textNovoNome) { // Construtor para receber a referência
+            this.textNovoNome = textNovoNome;
+        }
 
         @Override
         protected Void doInBackground() throws Exception {
@@ -206,10 +211,14 @@ class PainelMesclaPlanilha {
 
         private void mesclarArquivos() {
             String pasta = textPasta.getText();
-            novoNomeBase = textNovoNome.getText();
+            novoNomeBase = textNovoNome.getText(); // Usa a referência correta
 
-            if (pasta.isEmpty() || novoNomeBase.isEmpty() || colunasBase.isEmpty()) {
-                publish("Por favor, preencha todos os campos e defina as colunas base.");
+            if (novoNomeBase.isEmpty()) {
+                novoNomeBase = "planilha_mesclada";
+            }
+
+            if (pasta.isEmpty() || colunasBase.isEmpty()) {
+                publish("Por favor, preencha o campo 'Pasta' e defina as colunas base.");
                 return;
             }
 
@@ -260,9 +269,9 @@ class PainelMesclaPlanilha {
     private void adicionarAcaoBotaoMesclar(JButton buttonMesclar) {
         buttonMesclar.addActionListener(e -> {
             if (SwingUtilities.isEventDispatchThread()) {
-                new MesclarArquivosWorker().execute();
+                new MesclarArquivosWorker(textNovoNome).execute(); // Passa a referência para o construtor
             } else {
-                SwingUtilities.invokeLater(() -> new MesclarArquivosWorker().execute());
+                SwingUtilities.invokeLater(() -> new MesclarArquivosWorker(textNovoNome).execute());
             }
         });
     }
