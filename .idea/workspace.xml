@@ -10,8 +10,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6a21d4a-bbe7-414e-8daf-47e430d57c1e" name="Changes" comment="Processamento AGITEL FINALIZADO!&#10;&#10;Coluna Região OK!">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_09_2024_08_09_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_09_2024_08_09_[Changes]/utilities-1.0-SNAPSHOT.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_09_2024_08_09__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_09_2024_09_28_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_09_2024_09_28__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_09_2024_09_36_[Changes]/ConfiguracoesTema$Tema.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_09_2024_09_36_[Changes]/ConfiguracoesTema.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_09_2024_09_36_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_09_2024_09_36__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PainelMesclaPlanilha.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelMesclaPlanilha.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PainelRenomearOrdenar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PainelRenomearOrdenar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/PainelRenomearOrdenar.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/PainelRenomearOrdenar.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +47,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/LuanVm/LE_Utilities.git&quot;,
-    &quot;accountId&quot;: &quot;c09c74dc-1ce4-4348-ab5a-2e17ef56231a&quot;
+    &quot;accountId&quot;: &quot;87b06ef6-01d7-42f7-ab25-8486e0b54d29&quot;
   }
 }</component>
   <component name="ProblemsViewState">
@@ -89,8 +99,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.20224.419" />
-        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-IU-242.20224.419" />
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.21829.142" />
+        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-IU-242.21829.142" />
       </set>
     </attachedChunks>
   </component>
@@ -137,6 +147,12 @@
       <workItem from="1726144572638" duration="14455000" />
       <workItem from="1726224374215" duration="8106000" />
       <workItem from="1726233101212" duration="2094000" />
+      <workItem from="1726245765552" duration="23000" />
+      <workItem from="1726487703117" duration="40000" />
+      <workItem from="1726593698143" duration="593000" />
+      <workItem from="1726683098555" duration="718000" />
+      <workItem from="1726755023973" duration="294000" />
+      <workItem from="1726833855845" duration="1877000" />
     </task>
     <task id="LOCAL-00001" summary="Config">
       <option name="closed" value="true" />
@@ -282,7 +298,23 @@
       <option name="project" value="LOCAL" />
       <updated>1726232432320</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Processamento AGITEL FINALIZADO!&#10;&#10;Coluna Região OK!">
+      <option name="closed" value="true" />
+      <created>1726236741852</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1726236741852</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Processamento AGITEL FINALIZADO!&#10;&#10;Coluna Região OK!">
+      <option name="closed" value="true" />
+      <created>1726236963223</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1726236963223</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -198,17 +198,23 @@ public class PainelRenomearOrdenar {
                 File[] files = directory.listFiles();
 
                 if (files != null) {
-                    Arrays.sort(files, Comparator.comparing(File::getName));
-                    for (int i = 0; i < files.length; i++) {
-                        if (files[i].isFile()) {
-                            String nomeArquivo = files[i].getName();
-                            String ordem = (String) modeloTabela.getValueAt(i, 1);
+                    // Não ordena mais os arquivos pelo nome no sistema
+                    for (int i = 0; i < modeloTabela.getRowCount(); i++) {
+                        String nomeArquivo = (String) modeloTabela.getValueAt(i, 0);
+                        String ordem = (String) modeloTabela.getValueAt(i, 1);
 
-                            if (ordem.isEmpty()) {
-                                JOptionPane.showMessageDialog(panel, "Por favor, preencha a coluna 'Ordem' para todos os arquivos.");
-                                return;
-                            }
+                        if (ordem.isEmpty()) {
+                            JOptionPane.showMessageDialog(panel, "Por favor, preencha a coluna 'Ordem' para todos os arquivos.");
+                            return;
+                        }
 
+                        // Busca o arquivo correspondente ao nome na tabela
+                        File arquivoOriginal = Arrays.stream(files)
+                                .filter(file -> file.getName().equals(nomeArquivo))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (arquivoOriginal != null && arquivoOriginal.isFile()) {
                             try {
                                 int numeroOrdem = Integer.parseInt(ordem);
 
@@ -217,7 +223,7 @@ public class PainelRenomearOrdenar {
                                 String novoNome = String.format("%s%s%s", novoNomeBase, String.format(formatoNumeracao, numeroOrdem), getFileExtension(nomeArquivo));
 
                                 File novoArquivo = new File(directory, novoNome);
-                                if (!files[i].renameTo(novoArquivo)) {
+                                if (!arquivoOriginal.renameTo(novoArquivo)) {
                                     JOptionPane.showMessageDialog(panel, "Erro ao renomear: " + nomeArquivo);
                                 } else {
                                     modeloTabela.setValueAt(novoNome, i, 0); // Atualiza a tabela com o novo nome
@@ -254,13 +260,37 @@ public class PainelRenomearOrdenar {
         modeloTabela.setRowCount(0); // Limpa a tabela existente
         File[] files = directory.listFiles();
         if (files != null) {
-            Arrays.sort(files, Comparator.comparing(File::getName));
+            // Ordena arquivos numericamente
+            Arrays.sort(files, (file1, file2) -> {
+                String name1 = file1.getName();
+                String name2 = file2.getName();
+                int number1 = extractNumber(name1);
+                int number2 = extractNumber(name2);
+                return Integer.compare(number1, number2);
+            });
             for (File file : files) {
                 if (file.isFile()) {
                     modeloTabela.addRow(new Object[]{file.getName(), ""});
                 }
             }
         }
+    }
+
+    // Metodo para extrair o número do nome do arquivo
+    private int extractNumber(String fileName) {
+        // Assume que o número está no final do nome do arquivo antes da extensão
+        String[] parts = fileName.split("-");
+        if (parts.length > 1) {
+            try {
+                // Remove a extensão e tenta converter o número
+                String numberPart = parts[parts.length - 1].replaceAll("[^0-9]", "");
+                return Integer.parseInt(numberPart);
+            } catch (NumberFormatException e) {
+                // Se falhar, retorna um número negativo para manter a ordenação correta
+                return -1;
+            }
+        }
+        return -1;
     }
 
     // Metodo para atualizar a visualização dos arquivos na textAreaArquivos
